@@ -10,22 +10,22 @@ from django.http import HttpResponse
 def wms(request):
     """WMS view for isias layers"""
     
-    return HttpResponse('wms response')
+    return HttpResponse('Welcome to django-wms')
 
-    # Setup wms request object
-    wms_request = mapscript.OWSRequest()
+    # # Setup wms request object
+    # wms_request = mapscript.OWSRequest()
 
-    # Convert application request parameters (req.args)
-    for param, value in request.GET.items():
-        wms_request.setParameter(param, value)
+    # # Convert application request parameters (req.args)
+    # for param, value in request.GET.items():
+    #     wms_request.setParameter(param, value)
 
-    # Get base map object
-    wms_map = get_base_map()
+    # # Get base map object
+    # wms_map = get_base_map()
     
-    # Get timestep id values
-    ts_ids = request.GET.get('SCENARIOTIMESTEP', '-1')
-    if not ts_ids:
-        ts_ids = '-1'
+    # # Get timestep id values
+    # ts_ids = request.GET.get('SCENARIOTIMESTEP', '-1')
+    # if not ts_ids:
+    #     ts_ids = '-1'
     
     # ##############
     # # Set species id list
