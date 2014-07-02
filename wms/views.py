@@ -4,25 +4,32 @@ from django.http import HttpResponse
 
 from django.views.generic import View
 
+from wms.maps import WmsMap
+
 ###############################################################################
 class WmsView(View):
     """WMS view class for setting up WMS endpoints"""
+
+    map_class = None
 
     def __init__(self, **kwargs):
         # Setup mapscript IO stream
         mapscript.msIO_installStdoutToBuffer()
 
-        # Ceck if WmsMap has been specified
-        if not hasattr(self, 'wmsmap'):
-            raise ValueError('WmsView does not have a WmsMap attached. '\
-                'Specify map class in wmsmap attribute.')
+        # Verify that map class has been specified correctly
+        if not self.map_class or not issubclass(self.map_class, WmsMap):
+            raise TypeError('map_class attribute is not a subclass of WmsMap. '\
+                'Specify map in map_class attribute.')
+
+        # Instantiate map
+        self.map = self.map_class().get_map_object()
 
         # Setup wms view allowing only GET requests
         super(WmsView, self).__init__(http_method_names=['get'], **kwargs)
 
     def get(self, request, *args, **kwargs):
         """
-        Get method of WmsView. This view renders WMS requests into 
+        Html GET method of WmsView. This view renders WMS requests into 
         corresponding responses using the attached WmsMap class.
         Responses are mainly images and xml files.
         """
@@ -35,7 +42,7 @@ class WmsView(View):
             ows_request.setParameter(param, value)
         
         # Dispatch map rendering
-        self.wmsmap.get_map().OWSDispatch(ows_request)
+        self.map.OWSDispatch(ows_request)
         
         # Store contenttype
         contenttype = mapscript.msIO_stripStdoutBufferContentType()

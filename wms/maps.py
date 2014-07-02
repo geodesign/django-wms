@@ -1,47 +1,51 @@
-"""
-Map objects representing mapserver map files.
-
-Each map object should be connected to a single wms url endpoint.
-"""
-
 import mapscript
 
+from wms.layers import WmsLayer
+
 class WmsMap():
-    """Base map object"""
+    """
+    Map objects representing mapserver map files.
+    """
 
-    def __init__(self, title='Django-wms service', srs=['4326', '3086'],
-            enable_requests=['GetMap', 'GetLegendGraphic', 'GetCapabilities'],
-            legend_size=(20,20)):
+    layer_classes = []
+    title='Django-wms service'
+    srs=['4326', '3086']
+    enable_requests=['GetMap', 'GetLegendGraphic', 'GetCapabilities']
+    legend_size=(20,20)
 
-        self.title = title
-        self.srs = srs
-        self.enable_requests = enable_requests
-        self.legend_size = legend_size
-
-        self.map_object = mapscript.mapObj()
-
-    def get_map(self):
+    def get_map_object(self):
         """
         Method to setup map object based on the input parameters. The map
         object represents the mapserver mapfile and is used to render
         the wms requests.
         """
+        map_object = mapscript.mapObj()
+
+        self.register_layers(map_object)
         
         # Set map object properties
-        self.map_object.setProjection('init=epsg:4326')
-        self.map_object.setMetaData('wms_title', self.title)
-        self.map_object.setMetaData('wms_onlineresource', '/wms/?')
-        self.map_object.setMetaData('wms_srs', 'epsg:' + ' epsg:'.join(self.srs))
-        self.map_object.setMetaData('wms_enable_request', ' '.join(self.enable_requests))
-        self.map_object.outputformat.transparent = mapscript.MS_ON
+        map_object.setProjection('init=epsg:4326')
+        map_object.setMetaData('wms_title', self.title)
+        map_object.setMetaData('wms_onlineresource', '/wms/?')
+        map_object.setMetaData('wms_srs', 'epsg:' + ' epsg:'.join(self.srs))
+        map_object.setMetaData('wms_enable_request', ' '.join(self.enable_requests))
+        map_object.outputformat.transparent = mapscript.MS_ON
 
         # Set legend item size
-        self.map_object.legend.keysizex = self.legend_size[0]
-        self.map_object.legend.keysizey = self.legend_size[1]
+        map_object.legend.keysizex = self.legend_size[0]
+        map_object.legend.keysizey = self.legend_size[1]
 
-        return self.map_object
+        return map_object
 
-    def register(self, layer):
-        """Register layer object to the map instance"""
+    def get_layers(self):
+        """
+        Instantiates and returns a list of layers for this map.
+        """
+        return [layer() for layer in self.layer_classes]
 
-        self.map_object.insertLayer(layer.layer_object)
+    def register_layers(self, map_object):
+        """
+        Registers all layer objects into a map object.
+        """
+        for layer in self.get_layers():
+            map_object.insertLayer(layer.dispatch_by_type())
