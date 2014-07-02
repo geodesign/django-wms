@@ -47,5 +47,16 @@ class WmsMap():
         """
         Registers all layer objects into a map object.
         """
-        for layer in self.get_layers():
+        # Get layers
+        layers = self.get_layers()
+
+        # Check for naming consistency
+        names = [layer.name for layer in layers]
+        if len(names) > 1 and len(set(names)) != len(names):
+            raise ValueError('Found two identical layer names in single map. '\
+                'Specify unique names for layers. This error be due to automatic naming '\
+                'which uses the model name as layer name by default.')
+
+        # Register layers
+        for layer in layers:
             map_object.insertLayer(layer.dispatch_by_type())
