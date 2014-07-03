@@ -124,10 +124,11 @@ class WmsLayer():
         # Get base layer and specify type
         layer = self.get_base_layer()
         layer.type = mapscript.MS_LAYER_RASTER
+        layer.classitem="[pixel]"
 
         # Set data source
-        layer.data = 'PG:host={host} dbname={dbname} user={user} '\
-                     'port={port} password={password} mode=2 '.format(
+        layer.data = "PG:host='{host}' dbname='{dbname}' user='{user}' "\
+                     "port='{port}' password='{password}' mode=2 ".format(
                             host=settings.DATABASES['default']['HOST'],
                             dbname=settings.DATABASES['default']['NAME'],
                             user=settings.DATABASES['default']['USER'],
@@ -135,9 +136,7 @@ class WmsLayer():
                             password=settings.DATABASES['default']['PASSWORD']
                         )
 
-        layer.data += 'table=' + self.model._meta.db_table
-
-        layer.classitem="[pixel]"
+        layer.data += "table='" + self.model._meta.db_table + "'"
 
         # Set where clause if provided
         if self.where:
