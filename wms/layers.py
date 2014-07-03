@@ -21,9 +21,6 @@ class WmsLayer():
     where = None
     cartography = []
 
-    def __init__(self):
-        self.dispatch_by_type()
-
     def get_spatial_type(self):
         """
         Returns the spatial type for the given model based on field types.
@@ -137,6 +134,7 @@ class WmsLayer():
                         )
 
         layer.data += "table='" + self.model._meta.db_table + "'"
+        print layer.data
 
         # Set where clause if provided
         if self.where:
