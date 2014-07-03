@@ -91,7 +91,7 @@ class WmsLayer():
         layer.name = self.get_layer_name()
         layer.setProjection('init=epsg:3086')
         layer.metadata.set('wms_title', 'Landcover')
-        layer.metadata.set('wms_srs', 'EPSG:3086')
+        layer.metadata.set('wms_srs', 'EPSG:3086 EPSG:4326')
         layer.opacity = 80
 
         return layer
@@ -134,7 +134,6 @@ class WmsLayer():
                         )
 
         layer.data += "table='" + self.model._meta.db_table + "'"
-        print layer.data
 
         # Set where clause if provided
         if self.where:
@@ -154,7 +153,7 @@ class WmsLayer():
                 species_style.color.setHex(cart['color'])
         else:
             category = mapscript.classObj(layer)
-            category.name = cart['']
+            category.name = self.get_layer_name()
             species_style = mapscript.styleObj(category)
             species_style.color.setHex('#FF00FF')
 
