@@ -112,7 +112,33 @@ class WmsLayer():
         """
         Connect this layer to a polygon model.
         """
-        print 'Dispatched to polygon'
+        # Get base layer and specify type
+        layer = self.get_base_layer()
+        layer.type = mapscript.MS_LAYER_POLYGON
+        layer.setProjection('init=epsg:4326')
+
+        # Set connection to DB
+        layer.setConnectionType(mapscript.MS_POSTGIS, '')
+        layer.connection = 'host={host} dbname={dbname} user={user} port={port} password={password}'.format(
+            host=settings.DATABASES['default']['HOST'],
+            dbname=settings.DATABASES['default']['NAME'],
+            user=settings.DATABASES['default']['USER'],
+            port=settings.DATABASES['default']['PORT'],
+            password=settings.DATABASES['default']['PASSWORD']
+            )
+
+        # Select data column
+        layer.data = 'geom FROM {0}'.format(self.model._meta.db_table)
+
+        # Categories and styles
+        category = mapscript.classObj(layer)
+        category.name = 'All'
+        style = mapscript.styleObj(category)
+        style.color.setHex('#777777')
+        style.outlinecolor.setHex('#000000')
+        style.width = 1
+
+        return layer
 
     def get_raster_layer(self):
         """
