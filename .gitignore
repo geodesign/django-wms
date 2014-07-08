@@ -12,3 +12,7 @@
 dist
 django_wms.egg-info
 
+# Django stuff
+db.sqlite3
+example
+manage.py
