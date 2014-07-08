@@ -1,6 +1,7 @@
 import mapscript
 
 from wms.layers import WmsLayer
+from django.conf import settings
 
 class WmsMap():
     """
@@ -25,8 +26,6 @@ class WmsMap():
         
         # Set map object properties
         map_object.setProjection('init=epsg:4326')
-        #map_object.setExtent(-180, -90, 180, 90)
-        #map_object.setSize(500, 500)
         map_object.setMetaData('wms_title', self.title)
         map_object.setMetaData('wms_onlineresource', '/wms/?')
         map_object.setMetaData('wms_srs', 'epsg:' + ' epsg:'.join(self.srs))
@@ -36,6 +35,10 @@ class WmsMap():
         # Set legend item size
         map_object.legend.keysizex = self.legend_size[0]
         map_object.legend.keysizey = self.legend_size[1]
+
+        # Allow debugging
+        if settings.DEBUG:
+            map_object.debug = mapscript.MS_ON
 
         return map_object
 

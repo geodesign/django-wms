@@ -1,5 +1,6 @@
 import mapscript
 
+from django.db import connection
 from django.conf import settings
 from django.contrib.gis.db import models
 
@@ -20,65 +21,63 @@ class WmsLayer():
     layer_name = None
     where = None
     cartography = []
-
-    def get_spatial_type(self):
-        """
-        Returns the spatial type for the given model based on field types.
-        """
-
-        # Setup geo field options
-        geo_field_options = [
-                ('point', models.PointField),
-                ('line', models.LineStringField),
-                ('polygon', (models.PolygonField,models.MultiPolygonField)), 
-                ('raster', RasterField)
-            ]
-
-        # Get geo field candidates
-        if self.geo_field_name:
-            check_fields = [self.model._meta.get_field_by_name(
-                                                self.geo_field_name)]
-        else:
-            check_fields = self.model._meta.get_fields_with_model()
-
-        # Loop through candidates and try to match
-        for field in check_fields:
-            field_matches = [geofield[0] for geofield in geo_field_options 
-                                if issubclass(field[0].__class__, geofield[1])]
-            
-            if field_matches:
-                return field_matches[0]
-
-        # Raise error if no spatial field is found
-        raise TypeError('No spatial field match found in specified model. '\
-            'Specify a model that has a spatial field')
+    classitem = None
 
     def dispatch_by_type(self):
         """
-        Chooses layer setup based on type
+        Instantiates layer based on type of spatial field. Finds spatial field
+        automatically if not set explicitly.
         """
         # Get data type for this model
-        data_type = self.get_spatial_type()
+        field_name = self.get_spatial_field().__class__.__name__
 
-        # Specify method options
-        method_options = {
-                'point': self.get_point_layer,
-                'line': self.get_point_layer,
-                'polygon': self.get_polygon_layer,
-                'raster': self.get_raster_layer
-                }
+        if field_name == 'RasterField':
+            return self.get_raster_layer()
+        else:
+            return self.get_vector_layer(field_name)
 
-        # Call matched method
-        return method_options[data_type]()
-
-    def get_layer_name(self):
+    def get_spatial_field(self):
         """
-        Returns layer name, defaults to model name
+        Returns the spatial type for the given model based on field types.
+        """
+        # Setup geo field options
+        geo_field_options = [models.PointField, models.LineStringField,
+                             models.PolygonField, models.MultiPolygonField,
+                             RasterField]
+
+        # If name is specified, use it, otherwise loop through candidates
+        if self.geo_field_name:
+            return self.model._meta.get_field_by_name(self.geo_field_name)
+        else:
+            for field in self.model._meta.concrete_fields:
+                
+                if any([issubclass(field.__class__, geofield)
+                                for geofield in geo_field_options]):
+                    return field
+
+        # Raise error if no spatial field match was found
+        raise TypeError('No spatial field match found in specified model. '\
+            'Specify a model that has a spatial field')
+
+    def get_name(self):
+        """
+        Returns WMS layer name, defaults to model name if not provided.
         """
         if self.name:
             return self.name
         else:
             return self.model._meta.model_name
+
+    def get_srs(self):
+        """
+        Returns srs for this layer based on field specification.
+        """
+        instance = self.model.objects.first()
+
+        if hasattr(instance, 'rasterlayer'):
+            return str(instance.rasterlayer.srid)
+        else:
+            return str(self.get_spatial_field().srid)
 
     def get_base_layer(self):
         """
@@ -88,38 +87,37 @@ class WmsLayer():
         # Instanciate mapscript layer
         layer = mapscript.layerObj()
         layer.status = mapscript.MS_OFF
-        layer.name = self.get_layer_name()
-        layer.setProjection('init=epsg:3086')
+        layer.name = self.get_name()
+        layer.setProjection('init=epsg:' + self.get_srs())
         layer.metadata.set('wms_title', 'Landcover')
-        layer.metadata.set('wms_srs', 'EPSG:3086 EPSG:4326')
         layer.opacity = 80
+
+        # Allow debugging
+        if settings.DEBUG:
+            layer.debug = mapscript.MS_ON
 
         return layer
 
-    def get_point_layer(self):
+    def get_vector_layer(self, field_name):
         """
-        Connect this layer to a point geometry model.
+        Connect this layer to a vector data model.
         """
-        print 'Dispatched to point'
-
-    def get_line_layer(self):
-        """
-        Connect this layer to a line string model.
-        """
-        print 'Dispatched to line'
-
-    def get_polygon_layer(self):
-        """
-        Connect this layer to a polygon model.
-        """
-        # Get base layer and specify type
+        # Get base layer
         layer = self.get_base_layer()
-        layer.type = mapscript.MS_LAYER_POLYGON
-        layer.setProjection('init=epsg:4326')
+
+        # Specify input data type
+        layer_types = {
+                'PointField': mapscript.MS_LAYER_POINT,
+                'LineStringField': mapscript.MS_LAYER_LINE,
+                'PolygonField': mapscript.MS_LAYER_POLYGON,
+                'MultiPolygonField': mapscript.MS_LAYER_POLYGON
+                }
+        layer.type = layer_types[field_name]
 
         # Set connection to DB
         layer.setConnectionType(mapscript.MS_POSTGIS, '')
-        layer.connection = 'host={host} dbname={dbname} user={user} port={port} password={password}'.format(
+        layer.connection = 'host={host} dbname={dbname} user={user} '\
+                           'port={port} password={password}'.format(
             host=settings.DATABASES['default']['HOST'],
             dbname=settings.DATABASES['default']['NAME'],
             user=settings.DATABASES['default']['USER'],
@@ -130,13 +128,27 @@ class WmsLayer():
         # Select data column
         layer.data = 'geom FROM {0}'.format(self.model._meta.db_table)
 
-        # Categories and styles
-        category = mapscript.classObj(layer)
-        category.name = 'All'
-        style = mapscript.styleObj(category)
-        style.color.setHex('#777777')
-        style.outlinecolor.setHex('#000000')
-        style.width = 1
+        # Set class item
+        if self.classitem:
+            layer.classitem = self.classitem
+
+        # Cartography settings
+        if self.cartography:
+            for cart in self.cartography:
+                category = mapscript.classObj(layer)
+                category.setExpression(cart.get('expression', ''))
+                category.name = cart.get('name', cart.get('expression',''))
+                style = mapscript.styleObj(category)
+                style.color.setHex(cart.get('color', '#777777'))
+                style.outlinecolor.setHex(cart.get('outlinecolor', '#000000'))
+                style.width = cart.get('width', 1)
+        else:
+            category = mapscript.classObj(layer)
+            category.name = layer.name
+            style = mapscript.styleObj(category)
+            style.color.setHex('#777777')
+            style.outlinecolor.setHex('#000000')
+            style.width = 1
 
         return layer
 
@@ -147,7 +159,12 @@ class WmsLayer():
         # Get base layer and specify type
         layer = self.get_base_layer()
         layer.type = mapscript.MS_LAYER_RASTER
-        layer.classitem="[pixel]"
+        
+        # Set class item
+        if self.classitem:
+            layer.classitem = self.classitem
+        else:
+            layer.classitem="[pixel]"
 
         # Set data source
         layer.data = "PG:host='{host}' dbname='{dbname}' user='{user}' "\
@@ -169,18 +186,18 @@ class WmsLayer():
         if self.nodata:
             layer.addProcessing("NODATA=" + self.nodata)
 
-        # Class settings
+        # Class and style settings
         if self.cartography:
             for cart in self.cartography:
                 category = mapscript.classObj(layer)
                 category.setExpression(cart['expression'])
                 category.name = cart['name']
-                species_style = mapscript.styleObj(category)
-                species_style.color.setHex(cart['color'])
+                style = mapscript.styleObj(category)
+                style.color.setHex(cart['color'])
         else:
             category = mapscript.classObj(layer)
             category.name = self.get_layer_name()
-            species_style = mapscript.styleObj(category)
-            species_style.color.setHex('#FF00FF')
+            style = mapscript.styleObj(category)
+            style.color.setHex('#FF00FF')
 
         return layer
