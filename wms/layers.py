@@ -5,6 +5,11 @@ from django.conf import settings
 from django.contrib.gis.db import models
 
 from raster.fields import RasterField
+def to_hex(color):
+    if not color[0] == '#':
+        rgb = tuple(map(int, color.split(' ')))
+        color = '#%02x%02x%02x' % rgb
+    return color
 
 class WmsLayer():
     """
@@ -135,12 +140,14 @@ class WmsLayer():
         # Cartography settings
         if self.cartography:
             for cart in self.cartography:
+                # Set categorization
                 category = mapscript.classObj(layer)
                 category.setExpression(cart.get('expression', ''))
                 category.name = cart.get('name', cart.get('expression',''))
+                # Set category style
                 style = mapscript.styleObj(category)
-                style.color.setHex(cart.get('color', '#777777'))
-                style.outlinecolor.setHex(cart.get('outlinecolor', '#000000'))
+                style.color.setHex(to_hex(cart.get('color', '#777777')))
+                style.outlinecolor.setHex(to_hex(cart.get('outlinecolor', '#000000')))
                 style.width = cart.get('width', 1)
         else:
             category = mapscript.classObj(layer)
@@ -189,11 +196,13 @@ class WmsLayer():
         # Class and style settings
         if self.cartography:
             for cart in self.cartography:
+                # Set categorization
                 category = mapscript.classObj(layer)
                 category.setExpression(cart['expression'])
                 category.name = cart['name']
+                # Set category style
                 style = mapscript.styleObj(category)
-                style.color.setHex(cart['color'])
+                style.color.setHex(to_hex(cart['color']))
         else:
             category = mapscript.classObj(layer)
             category.name = self.get_layer_name()

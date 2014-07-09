@@ -40,7 +40,11 @@ class WmsView(View):
         # Set request parameters
         for param, value in request.GET.items():
             ows_request.setParameter(param, value)
-        
+
+        # Dynamically use host for declaring service endpoint
+        onlineresource = request.build_absolute_uri().split('?')[0] + '?'
+        self.map.setMetaData('wms_onlineresource', onlineresource)
+
         # Dispatch map rendering
         self.map.OWSDispatch(ows_request)
         

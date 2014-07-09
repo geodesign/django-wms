@@ -26,10 +26,12 @@ class WmsMap():
         
         # Set map object properties
         map_object.setProjection('init=epsg:4326')
+        map_object.setExtent(-180, -90, 180, 90)
+        map_object.setSize(500, 500)
         map_object.setMetaData('wms_title', self.title)
-        map_object.setMetaData('wms_onlineresource', '/wms/?')
         map_object.setMetaData('wms_srs', 'epsg:' + ' epsg:'.join(self.srs))
         map_object.setMetaData('wms_enable_request', ' '.join(self.enable_requests))
+        #map_object.setMetaData('wms_enable_request', '*')
         map_object.outputformat.transparent = mapscript.MS_ON
 
         # Set legend item size
@@ -39,6 +41,7 @@ class WmsMap():
         # Allow debugging
         if settings.DEBUG:
             map_object.debug = mapscript.MS_ON
+            map_object.save('/Users/Tam/Desktop/bla.map')
 
         return map_object
 
