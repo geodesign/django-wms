@@ -1,4 +1,4 @@
-from math import sinh, atan, degrees, pi
+from math import pi
 
 import mapscript
 
@@ -6,8 +6,6 @@ from django.http import HttpResponse
 from django.views.generic import View
 
 from wms.maps import WmsMap
-from wms.globalmaptiles import GlobalMercator, GlobalGeodetic
-from wms.tilenames import tileEdges
 
 class WmsView(View):
     """WMS view class for setting up WMS endpoints"""
@@ -25,9 +23,6 @@ class WmsView(View):
 
         # Instantiate map
         self.map = self.map_class().get_map_object()
-
-        # Instantiate tile transformer
-        self.mercator = GlobalMercator()
 
         # Setup wms view allowing only GET requests
         super(WmsView, self).__init__(http_method_names=['get'], **kwargs)
