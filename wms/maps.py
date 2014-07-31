@@ -41,7 +41,7 @@ class WmsMap():
         # Allow debugging
         if settings.DEBUG:
             map_object.debug = mapscript.MS_ON
-            map_object.save('/Users/Tam/Desktop/bla.map')
+            #map_object.save('/Users/Tam/Desktop/bla.map')
 
         return map_object
 
