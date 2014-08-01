@@ -109,17 +109,19 @@ class WmsView(View):
             layers = self.kwargs.get('layers')
 
             # Get image format from url
-            format = {'.png': 'image/png', '.jpg':'image/jpeg'}[self.kwargs.get('format')]
+            format = {'.png': 'image/png', 
+                      '.jpg':'image/jpeg'}[self.kwargs.get('format')]
 
             # Setup wms parameter object
             return {
-                'SERVICE': 'WMS',
-                'REQUEST': 'GetMap',
-                'VERSION': '1.1.1',
-                'TRANSPARENT': 'true',
-                'HEIGHT': '256',
-                'WIDTH': '256',
-                'SRS': 'EPSG:3857',
-                'FORMAT': format,
-                'LAYERS': layers,
-                'BBOX': tilebounds}
+                    'SERVICE': 'WMS',
+                    'REQUEST': 'GetMap',
+                    'VERSION': '1.1.1',
+                    'TRANSPARENT': 'true',
+                    'HEIGHT': '256',
+                    'WIDTH': '256',
+                    'SRS': 'EPSG:3857',
+                    'FORMAT': format,
+                    'LAYERS': layers,
+                    'BBOX': tilebounds
+                    }

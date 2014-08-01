@@ -23,7 +23,7 @@ class WmsMap():
         map_object = mapscript.mapObj()
 
         self.register_layers(map_object)
-        
+
         # Set map object properties
         map_object.setProjection('init=epsg:4326')
         map_object.setExtent(-180, -90, 180, 90)
