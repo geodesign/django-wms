@@ -5,6 +5,7 @@ from django.conf import settings
 from django.contrib.gis.db import models
 
 from raster.fields import RasterField
+
 def to_hex(color):
     if not color[0] == '#':
         rgb = tuple(map(int, color.split(' ')))

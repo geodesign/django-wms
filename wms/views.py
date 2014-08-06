@@ -110,7 +110,7 @@ class WmsView(View):
 
             # Get image format from url
             format = {'.png': 'image/png', 
-                      '.jpg':'image/jpeg'}[self.kwargs.get('format')]
+                      '.jpg': 'image/jpeg'}[self.kwargs.get('format')]
 
             # Setup wms parameter object
             return {

@@ -19,7 +19,6 @@ class MyWms(views.WmsView):
 class TestPolygonView(TestCase):
 
     def setUp(self):
-        print 'WWWWMMMMMSSSSS'
         self.view = MyWms.as_view()
         self.factory = RequestFactory()
         TestPolygon.objects.create(geom='POLYGON ((30 10, 40 40, 20 40, 10 20, 30 10))')
