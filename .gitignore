@@ -16,3 +16,6 @@ django_wms.egg-info
 db.sqlite3
 example
 manage.py
+
+# sphinx build folder
+_build

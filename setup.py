@@ -20,6 +20,8 @@ setup(
     url='https://github.com/yellowcap/django-wms',
     author='Daniel Wiesmann',
     author_email='daniel@urbmet.com',
+    keywords=['django', 'gis', 'mapserver', 'mapscript', 'wms',
+              'tms', 'web map service', 'tile map service'],
     classifiers=[
         'Environment :: Web Environment',
         'Framework :: Django',
