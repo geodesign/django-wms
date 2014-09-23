@@ -8,4 +8,3 @@ Table of Contents
    layers
    maps
    views
-   other
