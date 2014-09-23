@@ -1,6 +1,5 @@
 import mapscript
 
-from wms.layers import WmsLayer
 from django.conf import settings
 
 class WmsMap():
@@ -9,10 +8,10 @@ class WmsMap():
     """
 
     layer_classes = []
-    title='Django-wms service'
-    srs=['4326', '3086', '3857']
-    enable_requests=['GetMap', 'GetLegendGraphic', 'GetCapabilities']
-    legend_size=(20,20)
+    title = 'Django-wms service'
+    srs = ['4326', '3086', '3857']
+    enable_requests = ['GetMap', 'GetLegendGraphic', 'GetCapabilities']
+    legend_size = (20, 20)
 
     def get_map_object(self):
         """
@@ -30,7 +29,8 @@ class WmsMap():
         map_object.setSize(500, 500)
         map_object.setMetaData('wms_title', self.title)
         map_object.setMetaData('wms_srs', 'epsg:' + ' epsg:'.join(self.srs))
-        map_object.setMetaData('wms_enable_request', ' '.join(self.enable_requests))
+        map_object.setMetaData('wms_enable_request',
+                               ' '.join(self.enable_requests))
         map_object.outputformat.transparent = mapscript.MS_ON
 
         # Set legend item size
@@ -60,8 +60,9 @@ class WmsMap():
         names = [layer.name for layer in layers]
         if len(names) > 1 and len(set(names)) != len(names):
             raise ValueError('Found two identical layer names in single map. '\
-                'Specify unique names for layers. This error be due to automatic naming '\
-                'which uses the model name as layer name by default.')
+                'Specify unique names for layers. This error be due to '\
+                'automatic naming which uses the model name as layer name '\
+                'by default.')
 
         # Register layers
         for layer in layers:

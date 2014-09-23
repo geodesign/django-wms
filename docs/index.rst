@@ -4,7 +4,7 @@ The Django WMS Framework is a toolkit that makes it easy to integrate a `Web Map
 
 Requirements
 ------------
-The processing of spatial data in django-wms relies on `MapServer <http://mapserver.org/index.html>`_ and its python bindings `MapScript <http://mapserver.org/mapscript/mapscript.html>`_. Raster data integration depends on the `django-raster <https://pypi.python.org/pypi/django-raster/0.1.0>`_ package. The use of `PostGIS <http://postgis.net/>`_ as the database backend is required as well, for raster ntegration PostGIS >= 2.0 is required (see also django-raster package).
+The processing of spatial data in django-wms relies on `MapServer <http://mapserver.org/index.html>`_ and its python bindings `MapScript <http://mapserver.org/mapscript/mapscript.html>`_. Raster data integration depends on the `django-raster <https://pypi.python.org/pypi/django-raster/0.1.0>`_ package. The use of `PostGIS <http://postgis.net/>`_ as the database backend is required as well, for raster integration PostGIS >= 2.0 is required (see also django-raster package).
 
 Installation
 ------------
@@ -17,11 +17,21 @@ Installation
             'wms',
         )
 
+Introduction
+------------
+The structure of django-wms is closely tied to how MapServer works. 
+
+The spatial data rendering in django-wms relies on `MapScript <http://mapserver.org/mapscript/mapscript.html>`_, the python-bindings for MapServer. The basic funcitonality of django-wms is to use mapscript to dynamically produce directives for MapServer. To render spatial data, MapServer is configured through `MapFiles <http://mapserver.org/mapfile/map.html>`_ in which global WMS parameters, layers and cartograpy styles are defined.
+
+The concept of `MAP <http://mapserver.org/mapfile/map.html>`_ directives is translated into a ``WmsMap`` class. `LAYER <http://mapserver.org/mapfile/map.html>`_ definitions and classes for symbology and cartography are represented in the ``WmsLayer`` class within django-wms. A set of `SYMBOL <http://mapserver.org/mapfile/map.html>`_ directives for drawing point data are preconfigured as well. 
+
+MapScript has its own class definitions for those directives, django-wms simply makes them easy to use in a django project.
+
+Web requests in django-wms are handled through a class based view module ``WmsView``. The view can be hooked into a url and will take care of handling WMS and TMS requests automatically.
+
 Example
 -------
-The structure of django-wms is closely tied to how MapServer works. The concept of mapfiles is translated into a ``Maps`` module. Layer definitions and classes for symbology and cartography are represented in the ``Layers`` module within django-wms.
-
-To create a mapping service, subclass the django-wms layer, map and view classes and connect them to an existing model in django that has a spatial field (such as Point, Polygon or MultiPolygon). An example ``wms_config.py`` module could look like this:::
+To create a mapping service, subclass the django-wms layer, map and view classes and connect them to an existing model in django that has a spatial field (such as Point, Polygon or MultiPolygon). An example ``wms_config.py`` module could look like this::
 
     ### wms_config.py
 
@@ -66,13 +76,7 @@ The django-wms package will automatically detect the first spatial field it can 
 
 Indices and tables
 ------------------
-`Web Map Service <http://en.wikipedia.org/wiki/Web_Map_Service>`_
-`Tile Map Service <http://en.wikipedia.org/wiki/Tile_Map_Service>`_
-
 
 * :ref:`genindex`
 * :ref:`modindex`
 * :ref:`search`
-
-.. autoclass:: wms.views.WmsView
-

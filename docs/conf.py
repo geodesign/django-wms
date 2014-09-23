@@ -28,6 +28,9 @@ import os
 # Add package to path
 sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
 
+# Autoclass init method as well
+autoclass_content = 'both'
+
 # Add any Sphinx extension module names here, as strings. They can be
 # extensions coming with Sphinx (named 'sphinx.ext.*') or your custom
 # ones.
