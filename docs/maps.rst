@@ -20,14 +20,12 @@ A list of map parameters that can be specified as class attributes when subclass
 
 The title of a WMS service endpoint. Defaults to
 ::
-
     title = 'Django-wms service'
 
 **SRS**
 
 An array of map projections (srid) can be requested through the map. Defaults to
 ::
-
     srs = ['4326', '3086', '3857']
 
 **Enable-requests**
@@ -41,7 +39,6 @@ WMS request types thata are allowed for the map. Defaults to
 
 Size in pixels of rendered icons on legends returned by the GetLegendGraphic request. Defaults to
 ::
-
     legend_size = (20, 20)
 
 Module docs

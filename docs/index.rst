@@ -8,9 +8,9 @@ The processing of spatial data in django-wms relies on `MapServer <http://mapser
 
 Installation
 ------------
-1. Install package with ``pip install django-wms``
 
-2. Add "wms" to your INSTALLED_APPS setting like this::
+1. Install package with ``pip install django-wms``
+2. Add "wms" to your INSTALLED_APPS setting like this ::
 
         INSTALLED_APPS = (
             ...
@@ -31,8 +31,8 @@ Web requests in django-wms are handled through a class based view module ``WmsVi
 
 Example
 -------
-To create a mapping service, subclass the django-wms layer, map and view classes and connect them to an existing model in django that has a spatial field (such as Point, Polygon or MultiPolygon). An example ``wms_config.py`` module could look like this::
-
+To create a mapping service, subclass the django-wms layer, map and view classes and connect them to an existing model in django that has a spatial field (such as Point, Polygon or MultiPolygon). An example ``wms_config.py`` module could be specified as follows
+::
     ### wms_config.py
 
     # Load django-wms classes
@@ -54,8 +54,8 @@ To create a mapping service, subclass the django-wms layer, map and view classes
     class MyWmsView(views.WmsView):
         map_class = MyWmsMap
 
-With the WmsView subclass in place, the only thing left to do to create a functional map service is to hook the view into a url. An example url configuration ``urls.py`` could be::
-    
+With the WmsView subclass in place, the only thing left to do to create a functional map service is to hook the view into a url. An example url configuration ``urls.py`` could be
+::    
     ### urls.py
 
     # Import the wms view
