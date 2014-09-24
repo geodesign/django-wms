@@ -23,8 +23,8 @@ install:
   - echo 'deb-src http://ppa.launchpad.net/ubuntugis/ppa/ubuntu precise main' | sudo tee -a /etc/apt/sources.list
   - sudo apt-key adv --keyserver keyserver.ubuntu.com --recv-keys 314DF160
   - sudo apt-get update
-  - sudo apt-get -y -f upgrade
-  - sudo apt-get install -y -f python-mapscript python-gdal
+  - sudo apt-get -y upgrade
+  - sudo apt-get install -y python-mapscript python-gdal
   - pip install psycopg2==2.5.3 django==1.7
   - pip install --no-deps django-raster==0.1.0
 
