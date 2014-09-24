@@ -4,7 +4,11 @@ from django.db import connection
 from django.conf import settings
 from django.contrib.gis.db import models
 
-from raster.fields import RasterField
+try:
+    from raster.fields import RasterField
+except:
+    RasterField = None
+    pass
 
 def to_hex(color):
     if not color[0] == '#':
@@ -48,8 +52,9 @@ class WmsLayer():
         """
         # Setup geo field options
         geo_field_options = [models.PointField, models.LineStringField,
-                             models.PolygonField, models.MultiPolygonField,
-                             RasterField]
+                             models.PolygonField, models.MultiPolygonField]
+        if RasterField:
+            geo_field_options += [RasterField]
 
         # If name is specified, use it, otherwise loop through candidates
         if self.geo_field_name:

@@ -52,7 +52,7 @@ For larger data sets, the dynamic rendering of WMS or TMS request can be quite e
 In any case, it is recommended to use the django-wms package in combination with a caching framework. If a caching backend is configured, caching the map service views is trivial. One simple example is the following, where the reuqested tiles would be cached for 24 hours ::
     
     from django.views.decorators.cache import cache_page
-    
+
     url(r'^tile/(?P<layers>[^/]+)/(?P<z>[0-9]+)/(?P<x>[0-9]+)/(?P<y>[0-9]+)(?P<format>\.jpg|\.png)$',
         cache_page(60 * 60 * 24)(MyWmsView.as_view()), name='tile'),
 
