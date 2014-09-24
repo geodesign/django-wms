@@ -5,6 +5,9 @@ python:
 
 env: DB_NAME='travis_ci_test' DJANGO_SETTINGS_MODULE='settings' PYTHONPATH=$HOME/build/geodesign/django-wms
 
+virtualenv:
+  system_site_packages: true
+
 before_script:
   - psql -c 'CREATE DATABASE travis_ci_test' -U postgres
   - psql -c 'CREATE EXTENSION postgis' -U postgres -d travis_ci_test
