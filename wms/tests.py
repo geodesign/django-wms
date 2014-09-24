@@ -3,12 +3,20 @@ from django.test.client import RequestFactory
 from wms import layers, maps, views
 from django.contrib.gis.db import models
 
+test_cartography =  [
+        {
+            'name': 'Category A',
+            'color': '58 112 38'
+            # 'symbol': 'circle'
+        }]
+
 class TestPolygon(models.Model):
     geom = models.PolygonField()
     objects = models.GeoManager()
 
 class VectorLayer(layers.WmsLayer):
     model = TestPolygon
+    cartography = test_cartography
 
 class MyMap(maps.WmsMap):
     layer_classes = [VectorLayer]

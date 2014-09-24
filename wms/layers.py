@@ -146,7 +146,7 @@ class WmsLayer():
         # Cartography settings
         if self.cartography:
             for cart in self.cartography:
-                # Set categorization
+                # Set categorization and name
                 category = mapscript.classObj(layer)
                 category.setExpression(cart.get('expression', ''))
                 category.name = cart.get('name', cart.get('expression',''))
@@ -155,6 +155,10 @@ class WmsLayer():
                 style.color.setHex(to_hex(cart.get('color', '#777777')))
                 style.outlinecolor.setHex(to_hex(cart.get('outlinecolor', '#000000')))
                 style.width = cart.get('width', 1)
+                # Set symbol name now, this will be linked to the map level
+                # symbolset when registering layers in map.
+                if cart.has_key('symbol'):
+                    style.symbolname = cart.get('symbol')
         else:
             category = mapscript.classObj(layer)
             category.name = layer.name
