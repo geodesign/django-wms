@@ -6,8 +6,8 @@ from django.contrib.gis.db import models
 test_cartography =  [
         {
             'name': 'Category A',
-            'color': '58 112 38'
-            # 'symbol': 'circle'
+            'color': '58 112 38',
+            'symbol': 'hash'
         }]
 
 class TestPolygon(models.Model):
