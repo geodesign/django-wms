@@ -57,10 +57,3 @@ In any case, it is recommended to use the django-wms package in combination with
         cache_page(60 * 60 * 24)(MyWmsView.as_view()), name='tile'),
 
 For more information on how to setup caching with django, see the `official documentation <https://docs.djangoproject.com/en/dev/topics/cache/>`_.
-
-Module docs
------------
-Auto-generated part of the module documentation.
-
-.. automodule:: wms.views
-    :members:

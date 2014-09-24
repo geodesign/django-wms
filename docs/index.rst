@@ -73,9 +73,3 @@ With the WmsView subclass in place, the only thing left to do to create a functi
     )
 
 The django-wms package will automatically detect the first spatial field it can find in ``MySpatialModel`` and create a WMS endpoint from the class based view. If the three arguments ``x``, ``y`` and ``z`` are found in the urlpattern, the view functions as TMS endpoint.
-
-Indices and tables
-------------------
-
-* :ref:`genindex`
-* :ref:`modindex`

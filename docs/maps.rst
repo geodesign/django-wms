@@ -40,10 +40,3 @@ WMS request types thata are allowed for the map. Defaults to
 Size in pixels of rendered icons on legends returned by the GetLegendGraphic request. Defaults to
 ::
     legend_size = (20, 20)
-
-Module docs
------------
-Auto-generated part of the module documentation.
-
-.. automodule:: wms.maps
-    :members:

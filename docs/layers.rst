@@ -107,14 +107,3 @@ After uploading a rasterfile to the RasterLayer model, that specific raster laye
         where="filename=\\\'myrasterfile.tif\\\'"
         nodata = '0'
         cartography = mycartograpy
-
-
-Module docs
------------
-Auto-generated part of the module documentation.
-
-.. automodule:: wms.layers
-    :members:
-
-.. automodule:: wms.symbols
-    :members:
