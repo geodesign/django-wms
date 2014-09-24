@@ -4,6 +4,9 @@ The Django WMS Framework is a toolkit that makes it easy to build a `Web Map Ser
 
 For complete documentation please go to `<http://django-wms.readthedocs.org>`_
 
+.. image:: https://travis-ci.org/geodesign/django-wms.svg?branch=master
+    :target: https://travis-ci.org/geodesign/django-wms
+
 Requirements
 ------------
 The processing of spatial data in django-wms relies on `MapServer <http://mapserver.org/index.html>`_ and its python bindings `MapScript <http://mapserver.org/mapscript/mapscript.html>`_. Raster data integration depends on the `django-raster <https://pypi.python.org/pypi/django-raster/0.1.0>`_ package. The use of `PostGIS <http://postgis.net/>`_ as the database backend is required as well, for raster ntegration PostGIS >= 2.0 is required (see also django-raster package).
