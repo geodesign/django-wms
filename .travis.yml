@@ -4,7 +4,7 @@ python:
   - '2.7'
 
 addons:
-  postgresql: "9.3"
+  postgresql: '9.3'
 
 env: DB_NAME='travis_ci_test' DJANGO_SETTINGS_MODULE='settings' PYTHONPATH=$HOME/build/geodesign/django-wms
 
@@ -15,13 +15,12 @@ virtualenv:
   system_site_packages: true
 
 before_script:
+  - sudo add-apt-repository ppa:ubuntugis/ubuntugis-unstable -y
+  - sudo apt-get update -qq
   - psql -c 'CREATE DATABASE travis_ci_test' -U postgres
   - psql -c 'CREATE EXTENSION postgis' -U postgres -d travis_ci_test
 
 install: 
-  - sudo deb http://ppa.launchpad.net/ubuntugis/ubuntugis-unstable/ubuntu precise main 
-  - sudo deb-src http://ppa.launchpad.net/ubuntugis/ubuntugis-unstable/ubuntu precise main 
-  - sudo apt-get update -qq
   - sudo apt-get install -qq python-mapscript python-gdal
   - pip install psycopg2==2.5.3 django==1.7
   - pip install --no-deps django-raster==0.1.0
