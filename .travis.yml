@@ -22,6 +22,7 @@ install:
   - ln -s /usr/lib/python2.7/dist-packages/osgeo ~/virtualenv/python2.7/lib/python2.7/site-packages/
   - ln -s /usr/lib/python2.7/dist-packages/GDAL-1.7.3.egg-info ~/virtualenv/python2.7/lib/python2.7/site-packages/
   - ln -s /usr/lib/python2.7/dist-packages/mapscript.py ~/virtualenv/python2.7/lib/python2.7/site-packages/mapscript.py
+  - ln -s /usr/lib/python2.7/dist-packages/_mapscript.so ~/virtualenv/python2.7/lib/python2.7/site-packages/_mapscript.so
   - pip install psycopg2==2.5.3 django==1.7
   - pip install --no-deps django-raster==0.1.0
 
