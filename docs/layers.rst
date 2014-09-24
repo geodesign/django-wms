@@ -34,8 +34,7 @@ The ``class_item`` attribute can be used to specify a column of the specified mo
 
 Cartography
 ^^^^^^^^^^^
-The cartography of a layer is defined as an array of dictionaries, where each dictionary has a *name*, a *expression* and a *color*. The name will be the name used in the legend when requested, the expression is a class expression for the ``class_item`` attribute that needs to be specified for the WmsLayer subclass (see above). The expression is SQL like, but not the same. The syntax is defined through the `MapServer Expressions <http://mapserver.org/mapfile/expressions.html>`_. Finally, the color used for this category can be specified as RGB with white spaces as separators (``255 0 0``) or as hexadecimal color (``#FF0000``).
-::
+The cartography of a layer is defined as an array of dictionaries, where each dictionary has a *name*, a *expression* and a *color*. The name will be the name used in the legend when requested, the expression is a class expression for the ``class_item`` attribute that needs to be specified for the WmsLayer subclass (see above). The expression is SQL like, but not the same. The syntax is defined through the `MapServer Expressions <http://mapserver.org/mapfile/expressions.html>`_. Finally, the color used for this category can be specified as RGB with white spaces as separators (``255 0 0``) or as hexadecimal color (``#FF0000``). ::
 
     mycartograpy = [
         {
@@ -47,7 +46,8 @@ The cartography of a layer is defined as an array of dictionaries, where each di
             'name': 'Category B',
             'expression': '2',
             'color': '255 0 0'
-        }]
+        }
+    ]
 
     class MySpatialModel(models.Model):
         quality = models.FloatField()
@@ -61,7 +61,40 @@ The cartography of a layer is defined as an array of dictionaries, where each di
 
 Vector layers
 -------------
-Supported spatial vector data types are Points, Lines, Polygons and MultiPolygons. For points a set of predefined symbols can be used to display them (*circle*, *square*, *triangle*, *cross* and *diagonal*), for polygon a hatch fill symbology is available as well (*hatch*). Further symbols can be added to display data, see `this tutorial <http://mapserver.org/mapfile/symbology/construction.html>`_ for guidance on symbol definitions.
+Supported spatial vector data types are Points, Lines, Polygons and MultiPolygons. Any of those field types are automatically detected in models or can be specifically set as explained above.
+
+For points and polygons a set of predefined symbols can be used to render them (*circle*, *square*, *triangle*, *cross* and *diagonal*), for polygon a hatch fill symbology is available as well (*hatch*). To use those symbols, add the symbol attribute to the cartography array. For example ::
+
+    mycartograpy = [
+        {
+            'name': 'Category A',
+            'expression': '1',
+            'color': '0 0 255',
+            'symbol': 'hatch'
+        }
+    ]
+
+Custom symbols can be added to display data, see `this tutorial <http://mapserver.org/mapfile/symbology/construction.html>`_ for guidance on symbol definitions. After creating custom mapscript symbols, the symbols can be added by subclassing the WmsSymbolSet class and setting an array of symbols in the ``custom_symbols`` attribute. When creating the WmsMap subclass, the custom symbol set needs to be specified as well. Below is a simple example ::
+
+        import mapscript
+        from wms.symbols import WmsSymbolSet
+
+        symb = mapscript.symbolObj('v-line')
+        symb.type = mapscript.MS_SYMBOL_VECTOR
+        symb.filled = mapscript.MS_FALSE
+        line = mapscript.lineObj()
+        for pnt in [(0,0), (5, 10), (10, 0)]:
+            line.add(mapscript.pointObj(pnt[0], pnt[1]))
+        symb.setPoints(line)
+        symb.sizex = 50
+        symb.sizey = 50
+
+        class MyCustomSymbols(WmsSymbolSet):
+            custom_symbols = [symb]
+
+        class MyWmsMap(maps.WmsMap):
+            symbolset_class = MyCustomSymbols
+
 
 Raster layers
 -------------
@@ -81,4 +114,7 @@ Module docs
 Auto-generated part of the module documentation.
 
 .. automodule:: wms.layers
+    :members:
+
+.. automodule:: wms.symbols
     :members:
