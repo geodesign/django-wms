@@ -9,6 +9,7 @@
 .elasticbeanstalk
 
 # Distribution
+build
 dist
 django_wms.egg-info
 

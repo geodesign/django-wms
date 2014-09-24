@@ -17,11 +17,6 @@ setup(
     download_url = 'https://github.com/geodesign/django-wms/tarball/v0.1.10',
     author='Daniel Wiesmann',
     author_email='daniel@urbmet.com',
-    install_requires=[
-        'psycopg2>=2.5.3',
-        'Django>=1.7',
-        'mapscript>=6.4.1',
-    ],
     keywords=['django', 'gis', 'mapserver', 'mapscript', 'wms',
               'tms', 'web map service', 'tile map service'],
     classifiers=[
