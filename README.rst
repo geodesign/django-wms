@@ -2,7 +2,7 @@ Django WMS Framework
 ======================
 The Django WMS Framework is a toolkit that makes it easy to build a `Web Map Service (WMS) <http://en.wikipedia.org/wiki/Web_Map_Service>`_ or a x-y-z `Tile Map Service <http://en.wikipedia.org/wiki/Tile_Map_Service>`_. Rendering of both vector and raster data formats are supported.
 
-For complete documentation please go to <http://django-wms.readthedocs.org>
+For complete documentation please go to `<http://django-wms.readthedocs.org>`_
 
 Requirements
 ------------
@@ -21,8 +21,8 @@ Installation
 
 Example
 -------
-To create a mapping service, subclass the django-wms layer, map and view classes and connect them to an existing model in django that has a spatial field (such as Point, Polygon or MultiPolygon). An example ``wms_config.py`` module could be specified as follows
-::
+To create a mapping service, subclass the django-wms layer, map and view classes and connect them to an existing model in django that has a spatial field (such as Point, Polygon or MultiPolygon). An example ``wms_config.py`` module could be specified as follows ::
+
     ### wms_config.py
 
     # Load django-wms classes
@@ -44,8 +44,8 @@ To create a mapping service, subclass the django-wms layer, map and view classes
     class MyWmsView(views.WmsView):
         map_class = MyWmsMap
 
-With the WmsView subclass in place, the only thing left to do to create a functional map service is to hook the view into a url. An example url configuration ``urls.py`` could be
-::    
+With the WmsView subclass in place, the only thing left to do to create a functional map service is to hook the view into a url. An example url configuration ``urls.py`` could be ::
+
     ### urls.py
 
     # Import the wms view
