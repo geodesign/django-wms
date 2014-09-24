@@ -3,23 +3,25 @@ from setuptools import setup
 
 README = open(os.path.join(os.path.dirname(__file__), 'README.rst')).read()
 
-# Allow setup.py to be run from any path
 os.chdir(os.path.normpath(os.path.join(os.path.abspath(__file__), os.pardir)))
 
 setup(
     name='django-wms',
-    version='0.1.9',
+    version='0.1.10',
     packages=['wms'],
     include_package_data=True,
     license='BSD',
     description='Mapscript based WMS framework for GeoDjango',
     long_description=README,
-    # install_requires=[
-    #   'mapscript',
-    # ],
-    url='https://github.com/yellowcap/django-wms',
+    url='https://github.com/geodesign/django-raster',
+    download_url = 'https://github.com/geodesign/django-wms/tarball/v0.1.10',
     author='Daniel Wiesmann',
     author_email='daniel@urbmet.com',
+    install_requires=[
+        'psycopg2>=2.5.3',
+        'Django>=1.7',
+        'mapscript>=6.4.1',
+    ],
     keywords=['django', 'gis', 'mapserver', 'mapscript', 'wms',
               'tms', 'web map service', 'tile map service'],
     classifiers=[
@@ -30,9 +32,6 @@ setup(
         'Operating System :: OS Independent',
         'Programming Language :: Python',
         'Programming Language :: Python :: 2.7',
-        'Programming Language :: Python :: 3',
-        'Programming Language :: Python :: 3.2',
-        'Programming Language :: Python :: 3.3',
         'Topic :: Internet :: WWW/HTTP',
         'Topic :: Internet :: WWW/HTTP :: Dynamic Content',
     ],
