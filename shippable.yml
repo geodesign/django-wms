@@ -12,17 +12,15 @@ addons:
   postgresql : "9.3"
 
 before_install:
-  - echo "deb http://ppa.launchpad.net/ubuntugis/ubuntugis-unstable/ubuntu trusty main " | sudo tee -a /etc/apt/sources.list
-  - echo "deb-src http://ppa.launchpad.net/ubuntugis/ubuntugis-unstable/ubuntu trusty main" | sudo tee -a /etc/apt/sources.list
-  - sudo apt-key adv --keyserver keyserver.ubuntu.com --recv-keys 314DF160
-
   - shippable_retry sudo apt-get update
   - shippable_retry sudo apt-get install python-mapscript python-gdal
   - rm $HOME/build_ve/python/2.7/lib/python2.7/no-global-site-packages.txt 
+  - python -c 'import mapscript; print mapscript.msGetVersion()'
 
 install:
   - pip install Django==1.7 psycopg2==2.5.3
   - pip install --no-deps django-raster==0.1.0
+
 before_script:
   - psql -c 'create database "travis_ci_test";' -U postgres
   - psql -d travis_ci_test -c 'create extension postgis;' -U postgres
