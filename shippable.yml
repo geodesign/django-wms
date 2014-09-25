@@ -6,9 +6,7 @@ python:
   - "2.7"
 
 env:
-  - DB_NAME=travis_ci_test
-  - DJANGO_SETTINGS_MODULE=settings
-  - PYTHONPATH=$HOME/workspace/src/github.com/geodesign/django-wms
+  - DB_NAME=travis_ci_test DJANGO_SETTINGS_MODULE=settings PYTHONPATH=$HOME/workspace/src/github.com/geodesign/django-wms
 
 addons:
   postgresql : "9.3"
