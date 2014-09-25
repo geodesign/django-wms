@@ -13,6 +13,7 @@ addons:
 
 before_install:
   - shippable_retry sudo apt-get update
+  - sudo apt-get install libmapserver1
   - shippable_retry sudo apt-get install python-mapscript python-gdal
   - rm $HOME/build_ve/python/2.7/lib/python2.7/no-global-site-packages.txt 
   - python -c 'import mapscript; print mapscript.msGetVersion()'
