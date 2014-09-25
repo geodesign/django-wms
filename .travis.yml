@@ -23,6 +23,7 @@ install:
   - echo 'deb-src http://ppa.launchpad.net/ubuntugis/ubuntugis-unstable/ubuntu precise main' | sudo tee -a /etc/apt/sources.list
   - sudo apt-key adv --keyserver keyserver.ubuntu.com --recv-keys 314DF160
   - sudo apt-get update
-  - sudo apt-get install -y -f python-mapscript python-gdal
+  - sudo apt-get install -y libmapserver1
+  - sudo apt-get install -y -f python-mapscript
 
 script: django-admin.py test wms
