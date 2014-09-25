@@ -3,8 +3,8 @@ language: python
 python:
   - '2.7'
 
-# addons:
-#   postgresql: '9.3'
+addons:
+  postgresql: '9.3'
 
 env: DB_NAME='travis_ci_test' DJANGO_SETTINGS_MODULE='settings' PYTHONPATH=$HOME/build/geodesign/django-wms
 
@@ -23,8 +23,6 @@ install:
   - echo 'deb-src http://ppa.launchpad.net/ubuntugis/ubuntugis-unstable/ubuntu precise main' | sudo tee -a /etc/apt/sources.list
   - sudo apt-key adv --keyserver keyserver.ubuntu.com --recv-keys 314DF160
   - sudo apt-get update
-  - sudo apt-get install -y postgresql-9.3-postgis-2.1
-  - sudo apt-get install -y libgdal1h libmapserver1
   - sudo apt-get install -y -f python-mapscript python-gdal
 
 script: django-admin.py test wms
