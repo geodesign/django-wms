@@ -1,0 +1,26 @@
+build_environment: Ubuntu 14.04
+
+language: python
+
+python:
+  - "2.7"
+
+env:
+  - DB_NAME=travis_ci_test
+  - DJANGO_SETTINGS_MODULE=settings
+
+addons:
+  postgresql : "9.3"
+
+before_install:
+  - shippable_retry sudo apt-get update
+  - shippable_retry sudo apt-get install python-mapscript python-gdal
+
+install:
+  - pip install Django==1.7
+
+before_script:
+  - psql -c 'create database "travis_ci_test";' -U postgres
+  - psql -c -d travis_ci_test 'create extension postgis;' -U postgres
+
+script: django-admin.py test wms
