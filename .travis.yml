@@ -19,11 +19,11 @@ before_script:
   - psql -c 'CREATE EXTENSION postgis' -U postgres -d travis_ci_test
 
 install: 
-  - sudo rm /etc/apt/sources.list.d/ubuntugis-stable-source.list
-  - sudo apt-get update -qq
-  - sudo apt-get install -qq python-gdal gdal-bin binutils python-mapscript mapserver-bin
-  - python -c 'import mapscript; print mapscript.msGetVersion()'
-  - pip install psycopg2==2.5.3 django==1.7
-  - pip install --no-deps django-raster==0.1.0
+  - echo 'deb http://ppa.launchpad.net/ubuntugis/ubuntugis-unstable/ubuntu precise main' | sudo tee -a /etc/apt/sources.list
+  - echo 'deb-src http://ppa.launchpad.net/ubuntugis/ubuntugis-unstable/ubuntu precise main' | sudo tee -a /etc/apt/sources.list
+  - sudo apt-key adv --keyserver keyserver.ubuntu.com --recv-keys 314DF160
+  - sudo apt-get update
+  - sudo apt-get install -y libgdal1h libmapserver1
+  - sudo apt-get install -y -f python-mapscript python-gdal postgis
 
 script: django-admin.py test wms
