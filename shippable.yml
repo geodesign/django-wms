@@ -12,6 +12,7 @@ addons:
   postgresql : "9.3"
 
 before_install:
+  - lsb_release -a
   - shippable_retry sudo apt-get update
   - sudo apt-get install libmapserver1
   - shippable_retry sudo apt-get install python-mapscript python-gdal
