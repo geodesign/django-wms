@@ -17,8 +17,8 @@ before_install:
   - rm $HOME/build_ve/python/2.7/lib/python2.7/no-global-site-packages.txt 
 
 install:
-  - pip install Django==1.7 psycopg2==2.5.3 django-raster==0.1.0
-
+  - pip install Django==1.7 psycopg2==2.5.3
+  - pip install --no-deps django-raster==0.1.0
 before_script:
   - psql -c 'create database "travis_ci_test";' -U postgres
   - psql -d travis_ci_test -c 'create extension postgis;' -U postgres
