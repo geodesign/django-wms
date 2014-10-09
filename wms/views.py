@@ -21,8 +21,6 @@ class WmsView(View):
             raise TypeError('map_class attribute is not a subclass of WmsMap. '\
                 'Specify map in map_class attribute.')
 
-        # Instantiate WmsMap class
-        self.wmsmap = self.map_class()
 
         # Setup wms view allowing only GET requests
         super(WmsView, self).__init__(http_method_names=['get'], **kwargs)
@@ -43,6 +41,9 @@ class WmsView(View):
 
         for param, value in parameters.items():
             ows_request.setParameter(param, value)
+
+        # Instantiate WmsMap class
+        self.wmsmap = self.map_class(request, **kwargs)
 
         # Dynamically use host for declaring service endpoint
         onlineresource = request.build_absolute_uri().split('?')[0] + '?'
@@ -124,5 +125,6 @@ class WmsView(View):
                     'SRS': 'EPSG:3857',
                     'FORMAT': format,
                     'LAYERS': layers,
-                    'BBOX': tilebounds
+                    'BBOX': tilebounds,
+                    'level': '2'
                     }

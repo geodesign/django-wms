@@ -24,6 +24,13 @@ class WmsLayer():
     By default, WmsLayer will use the first spatial field it finds, but the
     field to use can also be specified explicitly using geo_field_name.
     """
+    # wiki.openstreetmap.org/wiki/Slippy_map_tilenames#Resolution_and_Scale
+    ZOOM_METER_PER_PIXEL = {
+        '0': 156543.03, '1': 78271.52, '2': 39135.76, '3': 19567.88, '4': 9783.94,
+        '5': 4891.97, '6': 2445.98, '7': 1222.99, '8': 611.50, '9': 305.75, '10': 152.87,
+        '11': 76.437, '12': 38.219, '13': 19.109, '14': 9.5546, '15': 4.7773,
+        '16': 2.3887, '17': 1.1943, '18': 0.5972
+    } 
 
     model = None
     name = None
@@ -32,6 +39,10 @@ class WmsLayer():
     where = None
     cartography = []
     classitem = None
+
+    def __init__(self, request, **kwargs):
+        self.request = request
+        self.kwargs = kwargs
 
     def dispatch_by_type(self):
         """
@@ -61,9 +72,8 @@ class WmsLayer():
             return self.model._meta.get_field_by_name(self.geo_field_name)
         else:
             for field in self.model._meta.concrete_fields:
-                
                 if any([issubclass(field.__class__, geofield)
-                                for geofield in geo_field_options]):
+                                   for geofield in geo_field_options]):
                     return field
 
         # Raise error if no spatial field match was found
@@ -83,12 +93,33 @@ class WmsLayer():
         """
         Returns srs for this layer based on field specification.
         """
-        instance = self.model.objects.first()
-
-        if hasattr(instance, 'rasterlayer'):
-            return str(instance.rasterlayer.srid)
+        if self.model.__name__ == 'RasterTile':
+            if hasattr(settings, 'WMS_RASTER_PYRAMID_SRID'):
+                return settings.WMS_RASTER_PYRAMID_SRID
+            else:
+                return '3857'
         else:
             return str(self.get_spatial_field().srid)
+
+    def get_pyramid_level(self):
+        """Function to match pyramid level to zoom level of TMS"""
+        tile=self.model.objects.raw(('SELECT * FROM raster_rastertile WHERE ' + self.where.replace('\\', '') + ' LIMIT 1').decode())
+
+        try:
+            tile = tile[0]
+        except:
+            return '1'
+
+        raster_scale = tile.rasterlayer.pixelsize(level=1)[0]
+
+        if self.kwargs.has_key('z'):
+            map_scale = self.ZOOM_METER_PER_PIXEL[self.kwargs['z']]
+        else:
+            map_scale = raster_scale
+
+        ratio = map_scale/float(raster_scale)*2
+        result = min([1,2,4,8,16,32], key=lambda x:abs(x - ratio))
+        return str(result)
 
     def get_base_layer(self):
         """
@@ -100,7 +131,7 @@ class WmsLayer():
         layer.status = mapscript.MS_OFF
         layer.name = self.get_name()
         layer.setProjection('init=epsg:' + self.get_srs())
-        layer.metadata.set('wms_title', 'Landcover')
+        layer.metadata.set('wms_title', 'Raster')
         layer.opacity = 80
 
         # Allow debugging
@@ -118,11 +149,11 @@ class WmsLayer():
 
         # Specify input data type
         layer_types = {
-                'PointField': mapscript.MS_LAYER_POINT,
-                'LineStringField': mapscript.MS_LAYER_LINE,
-                'PolygonField': mapscript.MS_LAYER_POLYGON,
-                'MultiPolygonField': mapscript.MS_LAYER_POLYGON
-                }
+            'PointField': mapscript.MS_LAYER_POINT,
+            'LineStringField': mapscript.MS_LAYER_LINE,
+            'PolygonField': mapscript.MS_LAYER_POLYGON,
+            'MultiPolygonField': mapscript.MS_LAYER_POLYGON}
+
         layer.type = layer_types[field_name]
 
         # Set connection to DB
@@ -133,8 +164,7 @@ class WmsLayer():
             dbname=settings.DATABASES['default']['NAME'],
             user=settings.DATABASES['default']['USER'],
             port=settings.DATABASES['default']['PORT'],
-            password=settings.DATABASES['default']['PASSWORD']
-            )
+            password=settings.DATABASES['default']['PASSWORD'])
 
         # Select data column
         layer.data = 'geom FROM {0}'.format(self.model._meta.db_table)
@@ -149,11 +179,12 @@ class WmsLayer():
                 # Set categorization and name
                 category = mapscript.classObj(layer)
                 category.setExpression(cart.get('expression', ''))
-                category.name = cart.get('name', cart.get('expression',''))
+                category.name = cart.get('name', cart.get('expression', ''))
                 # Set category style
                 style = mapscript.styleObj(category)
                 style.color.setHex(to_hex(cart.get('color', '#777777')))
-                style.outlinecolor.setHex(to_hex(cart.get('outlinecolor', '#000000')))
+                style.outlinecolor.setHex(to_hex(cart.get('outlinecolor',
+                                                          '#000000')))
                 style.width = cart.get('width', 1)
                 # Set symbol name now, this will be linked to the map level
                 # symbolset when registering layers in map.
@@ -181,23 +212,23 @@ class WmsLayer():
         if self.classitem:
             layer.classitem = self.classitem
         else:
-            layer.classitem="[pixel]"
+            layer.classitem = "[pixel]"
 
         # Set data source
         layer.data = "PG:host='{host}' dbname='{dbname}' user='{user}' "\
                      "port='{port}' password='{password}' mode=2 ".format(
-                            host=settings.DATABASES['default']['HOST'],
-                            dbname=settings.DATABASES['default']['NAME'],
-                            user=settings.DATABASES['default']['USER'],
-                            port=settings.DATABASES['default']['PORT'],
-                            password=settings.DATABASES['default']['PASSWORD']
-                        )
+                        host=settings.DATABASES['default']['HOST'],
+                        dbname=settings.DATABASES['default']['NAME'],
+                        user=settings.DATABASES['default']['USER'],
+                        port=settings.DATABASES['default']['PORT'],
+                        password=settings.DATABASES['default']['PASSWORD'])
 
         layer.data += "table='" + self.model._meta.db_table + "'"
 
         # Set where clause if provided
         if self.where:
-            layer.data += " where='" + self.where + "'"
+            layer.data += " where='" + self.where + \
+                          " AND level=" + self.get_pyramid_level() + "'"
 
         # Set nodata if provided
         if self.nodata:

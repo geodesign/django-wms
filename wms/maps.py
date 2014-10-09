@@ -16,12 +16,17 @@ class WmsMap():
     enable_requests = ['GetMap', 'GetLegendGraphic', 'GetCapabilities']
     legend_size = (20, 20)
 
-    def __init__(self):
+    def __init__(self, request, **kwargs):
         """
         Method to setup map object based on the input parameters. The map
         object represents the mapserver mapfile and is used to render
         the wms requests.
         """
+        # Store arguments
+        self.request = request
+        self.kwargs = kwargs
+
+        # Create mapobject
         self.map_object = mapscript.mapObj()
 
         self.register_symbolset()
@@ -44,13 +49,14 @@ class WmsMap():
         # Allow debugging
         if settings.DEBUG:
             self.map_object.debug = mapscript.MS_ON
+            # self.map_object.save('/home/tam/Desktop/wms.map')
 
     def get_layers(self):
         """
         Instantiates and returns a list of layers for this map.
         """
         # Create layer instances
-        return [layer() for layer in self.layer_classes]
+        return [layer(self.request, **self.kwargs) for layer in self.layer_classes]
 
     def register_layers(self):
         """
