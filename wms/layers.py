@@ -41,8 +41,21 @@ class WmsLayer():
     classitem = None
 
     def __init__(self, request, **kwargs):
+        # Set request and request args
         self.request = request
         self.kwargs = kwargs
+
+        # Check for custom raster pyramid srid, set default otherwise
+        if hasattr(settings, 'WMS_RASTER_PYRAMID_SRID'):
+            self.pyramidsrid = settings.WMS_RASTER_PYRAMID_SRID
+        else:
+            self.pyramidsrid = '3857'
+
+        # Check for custom raster pyramid levels, set defaults otherwise
+        if hasattr(settings, 'WMS_RASTER_LEVEL_PYRAMIDS'):
+            self.pyramidlevels = settings.WMS_RASTER_LEVEL_PYRAMIDS
+        else:
+            self.pyramidlevels = [1,2,4,8,16,32]
 
     def dispatch_by_type(self):
         """
@@ -94,32 +107,53 @@ class WmsLayer():
         Returns srs for this layer based on field specification.
         """
         if self.model.__name__ == 'RasterTile':
-            if hasattr(settings, 'WMS_RASTER_PYRAMID_SRID'):
-                return settings.WMS_RASTER_PYRAMID_SRID
-            else:
-                return '3857'
+            return self.pyramidsrid
         else:
             return str(self.get_spatial_field().srid)
 
+    def get_closest_pyramid_level(self, nr):
+        """
+        Returns existing pyramid level closest to given level. This prevents
+        errors due to pyramid level requests that do not exist.
+        """
+        return str(min(self.pyramidlevels, key=lambda x:abs(x - int(nr))))
+
     def get_pyramid_level(self):
         """Function to match pyramid level to zoom level of TMS"""
-        tile=self.model.objects.raw(('SELECT * FROM raster_rastertile WHERE ' + self.where.replace('\\', '') + ' LIMIT 1').decode())
 
+        # Check if level was requested explicitly
+        level_requested = self.request.GET.get('level', '')
+        if level_requested:
+            return self.get_closest_pyramid_level(level_requested)
+
+        # If zoomlevel has not been provided, return lowest level
+        if not self.kwargs.has_key('z'):
+            return self.get_closest_pyramid_level(0)
+
+        # Get first raster tile with provided where clause 
+        tile = self.model.objects.raw(
+            ('SELECT * FROM raster_rastertile WHERE ' +
+             self.where.replace('\\', '') + ' LIMIT 1').decode())
+
+        # If no tiles can be found, return lowest level
         try:
             tile = tile[0]
         except:
-            return '1'
+            return self.get_closest_pyramid_level(0)
 
+        # Get scale (size of a pixel) of raster at level 0
         raster_scale = tile.rasterlayer.pixelsize(level=1)[0]
 
-        if self.kwargs.has_key('z'):
-            map_scale = self.ZOOM_METER_PER_PIXEL[self.kwargs['z']]
-        else:
-            map_scale = raster_scale
+        # Lookup mapscale
+        map_scale = self.ZOOM_METER_PER_PIXEL[self.kwargs['z']]
 
-        ratio = map_scale/float(raster_scale)*2
-        result = min([1,2,4,8,16,32], key=lambda x:abs(x - ratio))
-        return str(result)
+        # Calculate scale ratio
+        ratio = map_scale/float(raster_scale)
+
+        # To speed up interface, increase ratio by a factor
+        ratio *= 2
+
+        return self.get_closest_pyramid_level(ratio)
 
     def get_base_layer(self):
         """
@@ -234,9 +268,17 @@ class WmsLayer():
         if self.nodata:
             layer.addProcessing("NODATA=" + self.nodata)
 
+        # Get cartography
+        layer = self.set_raster_cartography(layer)
+
+        return layer
+
+    def set_raster_cartography(self, layer):
+        cartography = self.get_cartography()
+
         # Class and style settings
-        if self.cartography:
-            for cart in self.cartography:
+        if cartography:
+            for cart in cartography:
                 # Set categorization
                 category = mapscript.classObj(layer)
                 category.setExpression(cart['expression'])
@@ -246,8 +288,15 @@ class WmsLayer():
                 style.color.setHex(to_hex(cart['color']))
         else:
             category = mapscript.classObj(layer)
-            category.name = self.get_layer_name()
+            category.name = layer.name
             style = mapscript.styleObj(category)
             style.color.setHex('#FF00FF')
 
         return layer
+
+    def get_cartography(self):
+        carto_requested = self.request.GET.get('cartography', '')
+        if carto_requested:
+            return None
+        else:
+            return self.cartography
