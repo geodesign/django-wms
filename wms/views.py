@@ -125,6 +125,5 @@ class WmsView(View):
                     'SRS': 'EPSG:3857',
                     'FORMAT': format,
                     'LAYERS': layers,
-                    'BBOX': tilebounds,
-                    'level': '2'
-                    }
+                    'BBOX': tilebounds
+                   }

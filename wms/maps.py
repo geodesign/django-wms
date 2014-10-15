@@ -49,7 +49,6 @@ class WmsMap():
         # Allow debugging
         if settings.DEBUG:
             self.map_object.debug = mapscript.MS_ON
-            # self.map_object.save('/home/tam/Desktop/wms.map')
 
     def get_layers(self):
         """

@@ -130,30 +130,36 @@ class WmsLayer():
         if not self.kwargs.has_key('z'):
             return self.get_closest_pyramid_level(0)
 
-        # Get first raster tile with provided where clause 
-        tile = self.model.objects.raw(
-            ('SELECT * FROM raster_rastertile WHERE ' +
-             self.where.replace('\\', '') + ' LIMIT 1').decode())
+        levelmap = {'15': 1, '14': 1, '13': 2, '12': 2, '11': 2, '10': 4, '9': 8, '8': 16, '7': 16, 
+                    '6': 32, '5': 32, '4': 32, '3': 32, '2': 32, '1': 32, '0': 32}
 
-        # If no tiles can be found, return lowest level
-        try:
-            tile = tile[0]
-        except:
-            return self.get_closest_pyramid_level(0)
+        return str(levelmap[self.kwargs['z']])
 
-        # Get scale (size of a pixel) of raster at level 0
-        raster_scale = tile.rasterlayer.pixelsize(level=1)[0]
+        # # Get first raster tile with provided where clause 
+        # tile = self.model.objects.raw(
+        #     ('SELECT * FROM raster_rastertile WHERE ' +
+        #      self.where.replace('\\', '') + ' LIMIT 1').decode())
 
-        # Lookup mapscale
-        map_scale = self.ZOOM_METER_PER_PIXEL[self.kwargs['z']]
+        # # If no tiles can be found, return lowest level
+        # try:
+        #     tile = tile[0]
+        # except:
+        #     return self.get_closest_pyramid_level(0)
 
-        # Calculate scale ratio
-        ratio = map_scale/float(raster_scale)
+        # # Get scale (size of a pixel) of raster at level 0
+        # raster_scale = tile.rasterlayer.pixelsize(level=1)[0]
 
-        # To speed up interface, increase ratio by a factor
-        ratio *= 2
+        # # Lookup mapscale
+        # map_scale = self.ZOOM_METER_PER_PIXEL[self.kwargs['z']]
 
-        return self.get_closest_pyramid_level(ratio)
+        # # Calculate scale ratio
+        # ratio = map_scale/float(raster_scale)
+
+        # # To speed up interface, increase ratio by a factor
+        # ratio *= 2
+
+        # ratio = 32*(1-(int(self.kwargs['z'])*int(self.kwargs['z'])/(15.0*15.0)))
+        # return self.get_closest_pyramid_level(ratio)
 
     def get_base_layer(self):
         """
