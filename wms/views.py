@@ -1,6 +1,7 @@
 from math import pi
+from PIL import Image
 
-import mapscript
+import mapscript, gdal
 
 from django.http import HttpResponse
 from django.views.generic import View
@@ -15,6 +16,9 @@ class WmsView(View):
     def __init__(self, **kwargs):
         # Setup mapscript IO stream
         mapscript.msIO_installStdoutToBuffer()
+
+        # Tell gdal to use python exceptions
+        gdal.UseExceptions()
 
         # Verify that map class has been specified correctly
         if not self.map_class or not issubclass(self.map_class, WmsMap):
@@ -34,12 +38,13 @@ class WmsView(View):
         # Setup wms request object
         ows_request = mapscript.OWSRequest()
 
-        # Get ows parameters, try using tiles, otherwise use request
-        parameters = self.tiles()
-        if not parameters:
-            parameters = request.GET
+        # If tile kwargs were provided, add tile parameters to request
+        tileparams = self.tiles()
+        if tileparams:
+            request.GET = dict(request.GET.items() + tileparams.items())
 
-        for param, value in parameters.items():
+        # Set ows parameters from request data
+        for param, value in request.GET.items():
             ows_request.setParameter(param, value)
 
         # Instantiate WmsMap class
@@ -49,24 +54,30 @@ class WmsView(View):
         onlineresource = request.build_absolute_uri().split('?')[0] + '?'
         self.wmsmap.map_object.setMetaData('wms_onlineresource', 
                                            onlineresource)
-
-        # Dispatch map rendering
-        self.wmsmap.map_object.OWSDispatch(ows_request)
-        
-        # Store contenttype
-        contenttype = mapscript.msIO_stripStdoutBufferContentType()
-
-        # Strip buffer from headers
-        mapscript.msIO_stripStdoutBufferContentHeaders()
-
         # Create response
         response = HttpResponse()
 
+        try:
+            # Dispatch map rendering
+            self.wmsmap.map_object.OWSDispatch(ows_request)
+
+            # Strip buffer from headers
+            mapscript.msIO_stripStdoutBufferContentHeaders()
+
+            # Store contenttype
+            contenttype = mapscript.msIO_stripStdoutBufferContentType()
+
+            # Write data to response
+            response.write(mapscript.msIO_getStdoutBufferBytes())
+        except:
+            # If drawing failed, return empty image
+            imagetype = 'PNG' if request.GET['FORMAT'] == 'image/png' else 'JPEG'
+            imagesize = int(request.GET['WIDTH']), int(request.GET['HEIGHT'])
+            contenttype = request.GET['FORMAT']
+            im = Image.new("RGBA", imagesize, (0, 0, 0, 0))
+
         # Set contenttype
         response['Content-Type'] = contenttype
-
-        # Write data to response
-        response.write(mapscript.msIO_getStdoutBufferBytes())
 
         return response
 

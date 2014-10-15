@@ -130,7 +130,7 @@ class WmsLayer():
         if not self.kwargs.has_key('z'):
             return self.get_closest_pyramid_level(0)
 
-        levelmap = {'15': 1, '14': 1, '13': 2, '12': 2, '11': 2, '10': 4, '9': 8, '8': 16, '7': 16, 
+        levelmap = {'15': 1, '14': 2, '13': 2, '12': 2, '11': 4, '10': 4, '9': 8, '8': 16, '7': 16, 
                     '6': 32, '5': 32, '4': 32, '3': 32, '2': 32, '1': 32, '0': 32}
 
         return str(levelmap[self.kwargs['z']])
@@ -265,10 +265,22 @@ class WmsLayer():
 
         layer.data += "table='" + self.model._meta.db_table + "'"
 
+        # Prepare the bbox where clause for this layer if bbox given
+        bbox_where = ''
+        if self.request.GET.has_key('BBOX'):
+            from django.contrib.gis.gdal import OGRGeometry
+            bbox_tuple = tuple(self.request.GET['BBOX'].split(','))
+            bbox_wkt = OGRGeometry.from_bbox(bbox_tuple).wkt
+            bbox_where = " AND rast && ST_GeomFromText(\\'" + bbox_wkt + "\\')"
+
         # Set where clause if provided
         if self.where:
-            layer.data += " where='" + self.where + \
-                          " AND level=" + self.get_pyramid_level() + "'"
+            layer.data += " where='" + self.where +\
+                          " AND level=" + self.get_pyramid_level()
+            if bbox_where:
+                layer.data += bbox_where
+
+            layer.data += "'"
 
         # Set nodata if provided
         if self.nodata:

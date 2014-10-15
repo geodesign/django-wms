@@ -33,9 +33,9 @@ class WmsMap():
         self.register_layers()
 
         # Set map object properties
-        self.map_object.setProjection('init=epsg:4326')
+        self.map_object.setProjection('init=epsg:3857')
         self.map_object.setExtent(-180, -90, 180, 90)
-        self.map_object.setSize(500, 500)
+        self.map_object.setSize(256, 256)
         self.map_object.setMetaData('wms_title', self.title)
         self.map_object.setMetaData('wms_srs', 'epsg:' + ' epsg:'.join(self.srs))
         self.map_object.setMetaData('wms_enable_request',
