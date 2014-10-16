@@ -30,7 +30,7 @@ class WmsLayer():
         '5': 4891.97, '6': 2445.98, '7': 1222.99, '8': 611.50, '9': 305.75, '10': 152.87,
         '11': 76.437, '12': 38.219, '13': 19.109, '14': 9.5546, '15': 4.7773,
         '16': 2.3887, '17': 1.1943, '18': 0.5972
-    } 
+    }
 
     model = None
     name = None
@@ -133,7 +133,8 @@ class WmsLayer():
         levelmap = {'15': 1, '14': 2, '13': 2, '12': 2, '11': 4, '10': 4, '9': 8, '8': 16, '7': 16, 
                     '6': 32, '5': 32, '4': 32, '3': 32, '2': 32, '1': 32, '0': 32}
 
-        return str(levelmap[self.kwargs['z']])
+        # return str(levelmap[self.kwargs['z']])
+        return '1'
 
         # # Get first raster tile with provided where clause 
         # tile = self.model.objects.raw(
@@ -254,33 +255,55 @@ class WmsLayer():
         else:
             layer.classitem = "[pixel]"
 
-        # Set data source
-        layer.data = "PG:host='{host}' dbname='{dbname}' user='{user}' "\
-                     "port='{port}' password='{password}' mode=2 ".format(
-                        host=settings.DATABASES['default']['HOST'],
-                        dbname=settings.DATABASES['default']['NAME'],
-                        user=settings.DATABASES['default']['USER'],
-                        port=settings.DATABASES['default']['PORT'],
-                        password=settings.DATABASES['default']['PASSWORD'])
+        x = self.kwargs.get('x', '')
+        y = self.kwargs.get('y', '')
+        z = self.kwargs.get('z', '')
 
-        layer.data += "table='" + self.model._meta.db_table + "'"
+        if x and y and z:
+            # Set data source
+            layer.data = "PG:host='{host}' dbname='{dbname}' user='{user}' "\
+                         "port='{port}' password='{password}' mode=1 "\
+                         "where='tilex={x} AND tiley={y} AND tilez={z} AND {where}'".format(
+                            host=settings.DATABASES['default']['HOST'],
+                            dbname=settings.DATABASES['default']['NAME'],
+                            user=settings.DATABASES['default']['USER'],
+                            port=settings.DATABASES['default']['PORT'],
+                            password=settings.DATABASES['default']['PASSWORD'],
+                            x=x, y=y, z=z,
+                            where=self.where)
 
-        # Prepare the bbox where clause for this layer if bbox given
-        bbox_where = ''
-        if self.request.GET.has_key('BBOX'):
-            from django.contrib.gis.gdal import OGRGeometry
-            bbox_tuple = tuple(self.request.GET['BBOX'].split(','))
-            bbox_wkt = OGRGeometry.from_bbox(bbox_tuple).wkt
-            bbox_where = " AND rast && ST_GeomFromText(\\'" + bbox_wkt + "\\')"
+            layer.data += " table='" + self.model._meta.db_table + "'"
+        else:
+            # Set data source
+            layer.data = "PG:host='{host}' dbname='{dbname}' user='{user}' "\
+                         "port='{port}' password='{password}' mode=2 ".format(
+                            host=settings.DATABASES['default']['HOST'],
+                            dbname=settings.DATABASES['default']['NAME'],
+                            user=settings.DATABASES['default']['USER'],
+                            port=settings.DATABASES['default']['PORT'],
+                            password=settings.DATABASES['default']['PASSWORD'])
 
-        # Set where clause if provided
-        if self.where:
-            layer.data += " where='" + self.where +\
-                          " AND level=" + self.get_pyramid_level()
-            if bbox_where:
-                layer.data += bbox_where
+            layer.data += "table='" + self.model._meta.db_table + "'"
 
-            layer.data += "'"
+            # Prepare the bbox where clause for this layer if bbox given
+            bbox_where = ''
+            if self.request.GET.has_key('BBOX'):
+                from django.contrib.gis.gdal import OGRGeometry
+                bbox_tuple = tuple(self.request.GET['BBOX'].split(','))
+                bbox_wkt = OGRGeometry.from_bbox(bbox_tuple).wkt
+                bbox_where = " AND rast && ST_GeomFromText(\\'" + bbox_wkt + "\\')"
+                print tuple(self.request.GET['BBOX'].split(','))
+
+            # Set where clause if provided
+            if self.where:
+                layer.data += " where='" + self.where +\
+                              " AND level=" + self.get_pyramid_level()
+                if bbox_where:
+                    layer.data += bbox_where
+
+                layer.data += "'"
+
+            print layer.data
 
         # Set nodata if provided
         if self.nodata:

@@ -74,6 +74,9 @@ class WmsView(View):
             imagetype = 'PNG' if request.GET['FORMAT'] == 'image/png' else 'JPEG'
             imagesize = int(request.GET['WIDTH']), int(request.GET['HEIGHT'])
             contenttype = request.GET['FORMAT']
+            print imagesize
+            print imagetype
+            print contenttype
             im = Image.new("RGBA", imagesize, (0, 0, 0, 0))
 
         # Set contenttype
@@ -114,6 +117,13 @@ class WmsView(View):
         else:
             # Convert indices to integers
             x,y,z = int(x), int(y), int(z)
+            from raster.models import RasterTile
+            if not RasterTile.objects.filter(
+                tilex=x,
+                tiley=y,
+                tilez=z,
+                filename=self.kwargs.get('layers', '')).exists():
+                return None
 
             # Get the tile bounds
             tilebounds = self.get_tile_bounds(x,y,z)
