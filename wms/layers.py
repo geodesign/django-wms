@@ -292,7 +292,6 @@ class WmsLayer():
                 bbox_tuple = tuple(self.request.GET['BBOX'].split(','))
                 bbox_wkt = OGRGeometry.from_bbox(bbox_tuple).wkt
                 bbox_where = " AND rast && ST_GeomFromText(\\'" + bbox_wkt + "\\')"
-                print tuple(self.request.GET['BBOX'].split(','))
 
             # Set where clause if provided
             if self.where:
