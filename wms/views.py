@@ -1,10 +1,11 @@
 from math import pi
 from PIL import Image
-
 import mapscript, gdal
 
 from django.http import HttpResponse
 from django.views.generic import View
+
+from raster.models import RasterTile
 
 from wms.maps import WmsMap
 
@@ -35,13 +36,53 @@ class WmsView(View):
         corresponding responses using the attached WmsMap class.
         Responses are mainly images and xml files.
         """
+        # Create response
+        response = HttpResponse()
+
         # Setup wms request object
         ows_request = mapscript.OWSRequest()
 
         # If tile kwargs were provided, add tile parameters to request
-        tileparams = self.tiles()
+        tileparams = self.tilemode()
+
         if tileparams:
-            request.GET = dict(request.GET.items() + tileparams.items())
+            # Get image format from url
+            format = {'.png': 'image/png', 
+                      '.jpg': 'image/jpeg'}[self.kwargs.get('format')]
+            
+            # Return empty image if tile cant be found
+            if not self.tile_exists(*tileparams):
+                # Get image type and size
+                imagetype = 'PNG' if format == 'image/png' else 'JPEG'
+                imagesize = 256, 256
+                response['Content-Type'] = format
+
+                # Create image and save it to response
+                im = Image.new("RGBA", imagesize, (0, 0, 0, 0))
+                im.save(response, imagetype)
+
+                return response
+            else:
+                tilebounds = self.get_tile_bounds(*tileparams)
+
+                # Get layer name
+                layers = self.kwargs.get('layers')
+
+                # Setup wms parameter object
+                request_data = {
+                    'SERVICE': 'WMS',
+                    'REQUEST': 'GetMap',
+                    'VERSION': '1.1.1',
+                    'TRANSPARENT': 'true',
+                    'HEIGHT': '256',
+                    'WIDTH': '256',
+                    'SRS': 'EPSG:3857',
+                    'FORMAT': format,
+                    'LAYERS': layers,
+                    'BBOX': tilebounds
+                   }
+
+                request.GET = dict(request.GET.items() + request_data.items())
 
         # Set ows parameters from request data
         for param, value in request.GET.items():
@@ -54,30 +95,18 @@ class WmsView(View):
         onlineresource = request.build_absolute_uri().split('?')[0] + '?'
         self.wmsmap.map_object.setMetaData('wms_onlineresource', 
                                            onlineresource)
-        # Create response
-        response = HttpResponse()
 
-        try:
-            # Dispatch map rendering
-            self.wmsmap.map_object.OWSDispatch(ows_request)
+        # Dispatch map rendering
+        self.wmsmap.map_object.OWSDispatch(ows_request)
 
-            # Strip buffer from headers
-            mapscript.msIO_stripStdoutBufferContentHeaders()
+        # Strip buffer from headers
+        mapscript.msIO_stripStdoutBufferContentHeaders()
 
-            # Store contenttype
-            contenttype = mapscript.msIO_stripStdoutBufferContentType()
+        # Store contenttype
+        contenttype = mapscript.msIO_stripStdoutBufferContentType()
 
-            # Write data to response
-            response.write(mapscript.msIO_getStdoutBufferBytes())
-        except:
-            # If drawing failed, return empty image
-            imagetype = 'PNG' if request.GET['FORMAT'] == 'image/png' else 'JPEG'
-            imagesize = int(request.GET['WIDTH']), int(request.GET['HEIGHT'])
-            contenttype = request.GET['FORMAT']
-            print imagesize
-            print imagetype
-            print contenttype
-            im = Image.new("RGBA", imagesize, (0, 0, 0, 0))
+        # Write data to response
+        response.write(mapscript.msIO_getStdoutBufferBytes())
 
         # Set contenttype
         response['Content-Type'] = contenttype
@@ -102,49 +131,23 @@ class WmsView(View):
         # Convert bounds to query string
         return ','.join([repr(coord) for coord in [minx, miny, maxx, maxy]])
 
-    def tiles(self):
-        """
-        This method checks the url parameters for xyz arguments, if found it
-        uses those to compute bounds for wms rendering.
-        """
+    def tilemode(self):
+        """Returns true if the request is for XYZ tiles"""
+        
         # Try to get tile indices from url
         x = self.kwargs.get('x', '')
         y = self.kwargs.get('y', '')
         z = self.kwargs.get('z', '')
 
         if not (x and y and z):
-            return None
+            return False
         else:
-            # Convert indices to integers
-            x,y,z = int(x), int(y), int(z)
-            from raster.models import RasterTile
-            if not RasterTile.objects.filter(
+            return int(x), int(y), int(z)
+
+    def tile_exists(self, x, y, z):
+        """Returns true if the requested XYZ tile exists"""
+        return RasterTile.objects.filter(
                 tilex=x,
                 tiley=y,
                 tilez=z,
-                filename=self.kwargs.get('layers', '')).exists():
-                return None
-
-            # Get the tile bounds
-            tilebounds = self.get_tile_bounds(x,y,z)
-
-            # Get layers to draw from url
-            layers = self.kwargs.get('layers')
-
-            # Get image format from url
-            format = {'.png': 'image/png', 
-                      '.jpg': 'image/jpeg'}[self.kwargs.get('format')]
-
-            # Setup wms parameter object
-            return {
-                    'SERVICE': 'WMS',
-                    'REQUEST': 'GetMap',
-                    'VERSION': '1.1.1',
-                    'TRANSPARENT': 'true',
-                    'HEIGHT': '256',
-                    'WIDTH': '256',
-                    'SRS': 'EPSG:3857',
-                    'FORMAT': format,
-                    'LAYERS': layers,
-                    'BBOX': tilebounds
-                   }
+                filename=self.kwargs.get('layers', '')).exists()
