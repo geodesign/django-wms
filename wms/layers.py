@@ -302,8 +302,6 @@ class WmsLayer():
 
                 layer.data += "'"
 
-            print layer.data
-
         # Set nodata if provided
         if self.nodata:
             layer.addProcessing("NODATA=" + self.nodata)
