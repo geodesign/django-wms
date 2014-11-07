@@ -35,8 +35,9 @@ To create a mapping service, subclass the django-wms layer, map and view classes
     from myapp.models import MySpatialModel
 
 
-    # Subclass the WmsLayer class and point it to a spatial model
-    class MyWmsLayer(layers.WmsLayer):
+    # Subclass the WmsVectorLayer class and point it to a spatial model.
+    # Use WmsRasterLayer for rasters
+    class MyWmsLayer(layers.WmsVectorLayer):
         model = MySpatialModel
 
     # Subclass the WmsMap class and add the layer to it

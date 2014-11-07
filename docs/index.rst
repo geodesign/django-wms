@@ -41,8 +41,8 @@ To create a mapping service, subclass the django-wms layer, map and view classes
     # Load model with spatial field (Point, Polygon, MultiPolygon)
     from myapp.models import MySpatialModel
 
-    # Subclass the WmsLayer class and point it to a spatial model
-    # use WmsVectorLayer for vector data and WmsRasterLayer for rasters
+    # Subclass the WmsVectorLayer class and point it to a spatial model.
+    # Use WmsRasterLayer for rasters
     class MyWmsLayer(layers.WmsVectorLayer):
         model = MySpatialModel
 
