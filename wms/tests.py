@@ -14,7 +14,7 @@ class TestPolygon(models.Model):
     geom = models.PolygonField()
     objects = models.GeoManager()
 
-class VectorLayer(layers.WmsLayer):
+class VectorLayer(layers.WmsVectorLayer):
     model = TestPolygon
     cartography = test_cartography
 
