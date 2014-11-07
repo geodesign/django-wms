@@ -4,8 +4,8 @@ The Django WMS Framework is a toolkit that makes it easy to build a `Web Map Ser
 
 For complete documentation please go to `<http://django-wms.readthedocs.org>`_
 
-.. image:: https://travis-ci.org/geodesign/django-wms.svg?branch=master
-    :target: https://travis-ci.org/geodesign/django-wms
+.. image:: https://api.shippable.com/projects/5423d57480088cee586cd0c7/badge?branchName=master
+    :target: https://app.shippable.com/projects/5423d57480088cee586cd0c7/builds/latest
 
 Requirements
 ------------
