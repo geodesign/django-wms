@@ -31,19 +31,19 @@ Web requests in django-wms are handled through a class based view module ``WmsVi
 
 Example
 -------
-To create a mapping service, subclass the django-wms layer, map and view classes and connect them to an existing model in django that has a spatial field (such as Point, Polygon or MultiPolygon). An example ``wms_config.py`` module could be specified as follows
+To create a mapping service, subclass the django-wms layer, map and view classes and connect them to an existing model in django that has a spatial field (such as Point, Polygon, MultiPolygon or Raster). An example ``wms_config.py`` module could be specified as follows
 ::
     ### wms_config.py
 
     # Load django-wms classes
     from wms import maps, layers, views
 
-    # Load model with spatial field (Point, Polygon or MultiPolygon)
+    # Load model with spatial field (Point, Polygon, MultiPolygon)
     from myapp.models import MySpatialModel
 
-
     # Subclass the WmsLayer class and point it to a spatial model
-    class MyWmsLayer(layers.WmsLayer):
+    # use WmsVectorLayer for vector data and WmsRasterLayer for rasters
+    class MyWmsLayer(layers.WmsVectorLayer):
         model = MySpatialModel
 
     # Subclass the WmsMap class and add the layer to it
