@@ -23,7 +23,7 @@ before_install:
   - rm /root/ve/lib/python2.7/no-global-site-packages.txt
 
 install:
-  - pip install Django==1.7 psycopg2==2.5.3
+  - pip install Django==1.7 psycopg2==2.5.3 pillow==2.3.0
   - pip install --no-deps git+https://github.com/geodesign/django-raster.git@master
 
 script: django-admin.py test wms
