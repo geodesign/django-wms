@@ -6,26 +6,25 @@ python:
   - "2.7"
 
 env:
-  - DB_NAME=travis_ci_test DJANGO_SETTINGS_MODULE=settings PYTHONPATH=$HOME/workspace/src/github.com/geodesign/django-wms
-
-addons:
-  postgresql : "9.3"
+  - DB_NAME=wms_test DJANGO_SETTINGS_MODULE=settings PYTHONPATH=$HOME/workspace/src/github.com/geodesign/django-wms
 
 before_install:
-  - lsb_release -a
+  - sudo echo "deb http://ppa.launchpad.net/ubuntugis/ubuntugis-unstable/ubuntu trusty main " >> /etc/apt/sources.list
+  - sudo echo "deb-src http://ppa.launchpad.net/ubuntugis/ubuntugis-unstable/ubuntu trusty main"  >> /etc/apt/sources.list
+  - shippable_retry sudo apt-key adv --keyserver keyserver.ubuntu.com --recv-keys 314DF160
   - shippable_retry sudo apt-get update
-  - sudo apt-get install libmapserver1
-  - shippable_retry sudo apt-get install python-mapscript python-gdal
-  - rm $HOME/build_ve/python/2.7/lib/python2.7/no-global-site-packages.txt 
-  - python -c 'import mapscript; print mapscript.msGetVersion()'
+  - shippable_retry sudo apt-get install -y python-dev python-gdal python-mapscript
+  - shippable_retry sudo apt-get install -y postgresql-9.3 postgresql-contrib-9.3 postgresql-server-dev-9.3 postgis postgresql-9.3-postgis-scripts
+  - sudo echo "host all all localhost trust" > /etc/postgresql/9.3/main/pg_hba.conf
+  - sudo echo "local all all trust" >> /etc/postgresql/9.3/main/pg_hba.conf
+  - sudo service postgresql start
+  - psql -c 'create database wms_test;' -U postgres
+  - psql -d wms_test -c 'create extension postgis;' -U postgres
+  - rm /root/ve/lib/python2.7/no-global-site-packages.txt
 
 install:
   - pip install Django==1.7 psycopg2==2.5.3
-  - pip install --no-deps django-raster==0.1.0
-
-before_script:
-  - psql -c 'create database "travis_ci_test";' -U postgres
-  - psql -d travis_ci_test -c 'create extension postgis;' -U postgres
+  - pip install --no-deps git+https://github.com/geodesign/django-raster.git@master
 
 script: django-admin.py test wms
 
