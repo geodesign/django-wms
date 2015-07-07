@@ -1,11 +1,10 @@
+**NOTE: THIS LIBRARY HAS BEEN DEPRECATED IN FAVOR OF** `django-raster <https://github.com/geodesign/django-raster>`_.
+
 Django WMS Framework
 ======================
 The Django WMS Framework is a toolkit that makes it easy to build a `Web Map Service (WMS) <http://en.wikipedia.org/wiki/Web_Map_Service>`_ or a x-y-z `Tile Map Service <http://en.wikipedia.org/wiki/Tile_Map_Service>`_. Rendering of both vector and raster data formats are supported.
 
 For complete documentation please go to `<http://django-wms.readthedocs.org>`_
-
-.. image:: https://api.shippable.com/projects/5423d57480088cee586cd0c7/badge?branchName=master
-    :target: https://app.shippable.com/projects/5423d57480088cee586cd0c7/builds/latest
 
 Requirements
 ------------
