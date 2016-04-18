@@ -4,15 +4,15 @@ from django.db import connection
 from django.conf import settings
 from django.contrib.gis.db import models
 
-try:
-    from raster.fields import RasterField
-except:
-    RasterField = None
-    pass
+#try:
+    #from raster.fields import RasterField
+#except:
+    #RasterField = None
+    #pass
 
 def to_hex(color):
     """
-    Color utility, converts a whitespace separated triple of 
+    Color utility, converts a whitespace separated triple of
     numbers into a hex code color.
     """
     if not color[0] == '#':
@@ -193,7 +193,7 @@ class WmsRasterLayer(WmsBaseLayer):
     Raster field as WMS layer.
     """
 
-    geo_field_options = [RasterField]
+    geo_field_options = [models.RasterField]
 
     def get_raster_layer(self):
         """
@@ -202,7 +202,7 @@ class WmsRasterLayer(WmsBaseLayer):
         # Get base layer and specify type
         layer = self.get_base_layer()
         layer.type = mapscript.MS_LAYER_RASTER
-        
+
         # Set class item
         if self.classitem:
             layer.classitem = self.classitem
@@ -239,7 +239,7 @@ class WmsRasterLayer(WmsBaseLayer):
     def set_cartography(self, layer):
         """
         Sets the cartograhy for this layer
-        
+
         TODO: This currently sets cartograpy to None, but should be a
         lookup to a set of cartographies or be a dynamically created one
         """

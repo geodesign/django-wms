@@ -1,7 +1,8 @@
 from django.test import TestCase
 from django.test.client import RequestFactory
 from wms import layers, maps, views
-from django.contrib.gis.db import models
+
+from .models import TestPolygon
 
 test_cartography =  [
         {
@@ -10,19 +11,19 @@ test_cartography =  [
             'symbol': 'hash'
         }]
 
-class TestPolygon(models.Model):
-    geom = models.PolygonField()
-    objects = models.GeoManager()
 
 class VectorLayer(layers.WmsVectorLayer):
     model = TestPolygon
     cartography = test_cartography
 
+
 class MyMap(maps.WmsMap):
     layer_classes = [VectorLayer]
 
+
 class MyWms(views.WmsView):
     map_class = MyMap
+
 
 class TestPolygonView(TestCase):
 

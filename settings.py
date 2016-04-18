@@ -1,12 +1,21 @@
 """
-Settings for django-tiles tests and sphinx build
+Settings for django-wms tests and sphinx build
 """
-
 import os
+
 SECRET_KEY = 'testkey'
 
 INSTALLED_APPS = (
+    'django.contrib.admin',
+    'django.contrib.auth',
+    'django.contrib.contenttypes',
+    'django.contrib.sessions',
+    'django.contrib.messages',
+    'django.contrib.staticfiles',
+
+    'raster',
     'wms',
+    'tests',
 )
 
 DATABASES = {
@@ -16,7 +25,7 @@ DATABASES = {
         'HOST':     os.environ.get('DB_HOST', 'localhost'),
         'NAME':     os.environ.get('DB_NAME', 'postgres'),
         'PASSWORD': os.environ.get('DB_PASSWORD', ''),
-        'PORT':     os.environ.get('DB_PORT', '5432')
+        'PORT':     os.environ.get('DB_PORT', '5432'),
     }
 }
 

@@ -32,7 +32,7 @@ class WmsView(View):
 
     def get(self, request, *args, **kwargs):
         """
-        Html GET method of WmsView. This view renders WMS requests into 
+        Html GET method of WmsView. This view renders WMS requests into
         corresponding responses using the attached WmsMap class.
         Responses are mainly images and xml files.
         """
@@ -47,9 +47,9 @@ class WmsView(View):
 
         if tileparams:
             # Get image format from url
-            format = {'.png': 'image/png', 
+            format = {'.png': 'image/png',
                       '.jpg': 'image/jpeg'}[self.kwargs.get('format')]
-            
+
             # Return empty image if tile cant be found
             if not self.tile_exists(*tileparams):
                 # Get image type and size
@@ -93,7 +93,7 @@ class WmsView(View):
 
         # Dynamically use host for declaring service endpoint
         onlineresource = request.build_absolute_uri().split('?')[0] + '?'
-        self.wmsmap.map_object.setMetaData('wms_onlineresource', 
+        self.wmsmap.map_object.setMetaData('wms_onlineresource',
                                            onlineresource)
 
         # Dispatch map rendering
@@ -133,7 +133,7 @@ class WmsView(View):
 
     def tilemode(self):
         """Returns true if the request is for XYZ tiles"""
-        
+
         # Try to get tile indices from url
         x = self.kwargs.get('x', '')
         y = self.kwargs.get('y', '')

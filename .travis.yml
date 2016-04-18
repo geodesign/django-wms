@@ -1,0 +1,33 @@
+sudo: required
+
+language: python
+
+python:
+  - '2.7'
+  - '3.4'
+
+sudo: false
+
+env:
+    - DB_NAME=raster_aggregation_test PYTHONPATH=$PYTHONPATH:$PWD DJANGO_SETTINGS_MODULE=settings 
+
+before_script:
+  - psql -c 'create database raster_aggregation_test' -U postgres
+  - psql -c 'create extension postgis' -U postgres -d raster_aggregation_test
+
+install: 
+  - echo "deb http://ppa.launchpad.net/ubuntugis/ubuntugis-unstable/ubuntu trusty main " >> /etc/apt/sources.list
+  - echo "deb-src http://ppa.launchpad.net/ubuntugis/ubuntugis-unstable/ubuntu trusty main"  >> /etc/apt/sources.list
+  - apt-key adv --keyserver keyserver.ubuntu.com --recv-keys 314DF160
+  - apt-get update
+  - apt-get install -y python-dev python-gdal python-mapscript
+  - pip install Django==1.9.4
+  - pip install psycopg2==2.5.3
+  - pip install Pillow==2.7.0
+  - pip install flake8==2.5.4
+  - pip install isort==4.2.5
+
+script: django-admin.py test
+
+notifications:
+  email: false
