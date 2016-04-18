@@ -69,7 +69,7 @@ class WmsBaseLayer(object):
         """
         # If name is specified, use it, otherwise loop through candidates
         if self.geo_field_name:
-            return self.model._meta.get_field_by_name(self.geo_field_name)
+            return self.model._meta.get_field_by_name(self.geo_field_name)[0]
         else:
             for field in self.model._meta.concrete_fields:
                 if any([issubclass(field.__class__, geofield)
