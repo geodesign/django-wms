@@ -14,7 +14,7 @@ setup(
     description='Mapscript based WMS framework for GeoDjango',
     long_description=README,
     url='https://github.com/geodesign/django-raster',
-    download_url = 'https://github.com/geodesign/django-wms/tarball/v0.1.11',
+    download_url='https://github.com/geodesign/django-wms/tarball/v0.1.11',
     author='Daniel Wiesmann',
     author_email='daniel@urbmet.com',
     keywords=['django', 'gis', 'mapserver', 'mapscript', 'wms',
