@@ -1,5 +1,6 @@
 import mapscript
 
+
 class WmsSymbolSet():
     """
     Symbol set for rendering data using different cartograpy styles.

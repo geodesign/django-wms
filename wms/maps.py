@@ -4,6 +4,7 @@ from django.conf import settings
 
 from .symbols import WmsSymbolSet
 
+
 class WmsMap(object):
     """
     Map objects representing mapserver map files.

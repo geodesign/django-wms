@@ -1,13 +1,14 @@
 from math import pi
+
+import gdal
+import mapscript
 from PIL import Image
-import mapscript, gdal
+from raster.models import RasterTile
 
 from django.http import HttpResponse
 from django.views.generic import View
-
-from raster.models import RasterTile
-
 from wms.maps import WmsMap
+
 
 class WmsView(View):
     """WMS view class for setting up WMS endpoints"""

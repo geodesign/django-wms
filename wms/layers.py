@@ -1,8 +1,9 @@
 import mapscript
 
-from django.db import connection
 from django.conf import settings
 from django.contrib.gis.db import models
+from django.db import connection
+
 
 #try:
     #from raster.fields import RasterField
