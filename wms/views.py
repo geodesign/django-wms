@@ -1,6 +1,5 @@
 from math import pi
 
-import gdal
 import mapscript
 from PIL import Image
 from raster.models import RasterTile
@@ -18,9 +17,6 @@ class WmsView(View):
     def __init__(self, **kwargs):
         # Setup mapscript IO stream
         mapscript.msIO_installStdoutToBuffer()
-
-        # Tell gdal to use python exceptions
-        gdal.UseExceptions()
 
         # Verify that map class has been specified correctly
         if not self.map_class or not issubclass(self.map_class, WmsMap):
