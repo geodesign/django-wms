@@ -4,17 +4,16 @@ from wms import layers, maps, views
 
 from .models import TestPolygon
 
-test_cartography =  [
-        {
-            'name': 'Category A',
-            'color': '58 112 38',
-            'symbol': 'hash'
-        }]
+TEST_CARTOGRAPHY = [{
+    'name': 'Category A',
+    'color': '58 112 38',
+    'symbol': 'hash'
+}]
 
 
 class VectorLayer(layers.WmsVectorLayer):
     model = TestPolygon
-    cartography = test_cartography
+    cartography = TEST_CARTOGRAPHY
 
 
 class MyMap(maps.WmsMap):

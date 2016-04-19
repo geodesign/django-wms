@@ -2,14 +2,7 @@ import mapscript
 
 from django.conf import settings
 from django.contrib.gis.db import models
-from django.db import connection
 
-
-#try:
-    #from raster.fields import RasterField
-#except:
-    #RasterField = None
-    #pass
 
 def to_hex(color):
     """
@@ -20,6 +13,7 @@ def to_hex(color):
         rgb = tuple(map(int, color.split(' ')))
         color = '#%02x%02x%02x' % rgb
     return color
+
 
 class WmsBaseLayer(object):
     """
@@ -73,13 +67,14 @@ class WmsBaseLayer(object):
             return self.model._meta.get_field_by_name(self.geo_field_name)[0]
         else:
             for field in self.model._meta.concrete_fields:
-                if any([issubclass(field.__class__, geofield)
-                                   for geofield in self.geo_field_options]):
+                if any([issubclass(field.__class__, geofield) for geofield in self.geo_field_options]):
                     return field
 
         # Raise error if no spatial field match was found
-        raise TypeError('No spatial field match found in specified model. '\
-            'Specify a model that has a spatial field')
+        raise TypeError(
+            'No spatial field match found in specified model. '
+            'Specify a model that has a spatial field'
+        )
 
     def get_name(self):
         """
@@ -145,13 +140,17 @@ class WmsVectorLayer(WmsBaseLayer):
 
         # Set connection to DB
         layer.setConnectionType(mapscript.MS_POSTGIS, '')
-        layer.connection = 'host={host} dbname={dbname} user={user} '\
-                           'port={port} password={password}'.format(
+        connection_template = (
+            'host={host} dbname={dbname} user={user} '
+            'port={port} password={password}'
+        )
+        layer.connection = connection_template.format(
             host=settings.DATABASES['default']['HOST'],
             dbname=settings.DATABASES['default']['NAME'],
             user=settings.DATABASES['default']['USER'],
             port=settings.DATABASES['default']['PORT'],
-            password=settings.DATABASES['default']['PASSWORD'])
+            password=settings.DATABASES['default']['PASSWORD']
+        )
 
         # Select data column
         layer.data = 'geom FROM {0}'.format(self.model._meta.db_table)
@@ -215,18 +214,24 @@ class WmsRasterLayer(WmsBaseLayer):
         z = self.kwargs.get('z')
 
         # Set data source
-        layer.data = "PG:host='{host}' dbname='{dbname}' user='{user}' "\
-                     "port='{port}' password='{password}' mode=1 "\
-                     "where='tilex={x} AND tiley={y} AND tilez={z} AND {where}' "\
-                     "table='{db_table}'".format(
-                        host=settings.DATABASES['default']['HOST'],
-                        dbname=settings.DATABASES['default']['NAME'],
-                        user=settings.DATABASES['default']['USER'],
-                        port=settings.DATABASES['default']['PORT'],
-                        password=settings.DATABASES['default']['PASSWORD'],
-                        x=x, y=y, z=z,
-                        where=self.where,
-                        db_table=self.model._meta.db_table)
+        layer_data_template = (
+            "PG:host='{host}' dbname='{dbname}' user='{user}' "
+            "port='{port}' password='{password}' mode=1 "
+            "where='tilex={x} AND tiley={y} AND tilez={z} AND {where}' "
+            "table='{db_table}'"
+        )
+        layer.data = layer_data_template.format(
+            host=settings.DATABASES['default']['HOST'],
+            dbname=settings.DATABASES['default']['NAME'],
+            user=settings.DATABASES['default']['USER'],
+            port=settings.DATABASES['default']['PORT'],
+            password=settings.DATABASES['default']['PASSWORD'],
+            x=x,
+            y=y,
+            z=z,
+            where=self.where,
+            db_table=self.model._meta.db_table
+        )
 
         # Set nodata if provided
         if self.nodata:

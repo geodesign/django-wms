@@ -11,17 +11,22 @@ class WmsSymbolSet():
     custom_symbols = []
 
     def __init__(self):
-        """Initiates the preset symbols for the symbolset"""
+        """
+        Initiates the preset symbols for the symbolset.
+        """
         self._create_preset_point_symbols()
         self._create_preset_polygon_symbols()
 
     def get_symbols(self):
-        """Returns an array of mapscript symbols"""
+        """
+        Returns an array of mapscript symbols.
+        """
         return self.preset_symbols + self.custom_symbols
 
     def _create_preset_point_symbols(self):
-        """Initiates preset point symbols"""
-
+        """
+        Initiates preset point symbols.
+        """
         # Circle symbol
         symb = mapscript.symbolObj('circle')
         symb.type = mapscript.MS_SYMBOL_ELLIPSE
@@ -38,7 +43,7 @@ class WmsSymbolSet():
         symb.type = mapscript.MS_SYMBOL_VECTOR
         symb.filled = mapscript.MS_TRUE
         line = mapscript.lineObj()
-        for pnt in [(0,0), (0, 10), (10, 10), (10, 0), (0, 0)]:
+        for pnt in [(0, 0), (0, 10), (10, 10), (10, 0), (0, 0)]:
             line.add(mapscript.pointObj(pnt[0], pnt[1]))
         symb.setPoints(line)
         symb.sizex = self.symbol_size
@@ -50,7 +55,7 @@ class WmsSymbolSet():
         symb.type = mapscript.MS_SYMBOL_VECTOR
         symb.filled = mapscript.MS_TRUE
         line = mapscript.lineObj()
-        for pnt in [(0,0), (14, 0), (7, 7), (0, 0)]:
+        for pnt in [(0, 0), (14, 0), (7, 7), (0, 0)]:
             line.add(mapscript.pointObj(pnt[0], pnt[1]))
         symb.setPoints(line)
         symb.sizex = self.symbol_size
@@ -62,7 +67,7 @@ class WmsSymbolSet():
         symb.type = mapscript.MS_SYMBOL_VECTOR
         symb.filled = mapscript.MS_FALSE
         line = mapscript.lineObj()
-        for pnt in [(0,0), (10, 10), (-99, -99), (0, 10), (10, 0)]:
+        for pnt in [(0, 0), (10, 10), (-99, -99), (0, 10), (10, 0)]:
             line.add(mapscript.pointObj(pnt[0], pnt[1]))
         symb.setPoints(line)
         symb.sizex = self.symbol_size
@@ -74,7 +79,7 @@ class WmsSymbolSet():
         symb.type = mapscript.MS_SYMBOL_VECTOR
         symb.filled = mapscript.MS_FALSE
         line = mapscript.lineObj()
-        for pnt in [(0,0), (10, 10)]:
+        for pnt in [(0, 0), (10, 10)]:
             line.add(mapscript.pointObj(pnt[0], pnt[1]))
         symb.setPoints(line)
         symb.sizex = self.symbol_size
@@ -82,7 +87,9 @@ class WmsSymbolSet():
         self.preset_symbols.append(symb)
 
     def _create_preset_polygon_symbols(self):
-        """Create Preset polygon symbols"""
+        """
+        Create Preset polygon symbols.
+        """
         # Hatch symbol from http://lists.osgeo.org/pipermail/\
         # mapserver-users/2011-September/069884.html
         symb = mapscript.symbolObj('hatch')

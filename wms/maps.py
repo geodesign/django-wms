@@ -68,10 +68,12 @@ class WmsMap(object):
         # Check for naming consistency
         names = [layer.name for layer in layers]
         if len(names) > 1 and len(set(names)) != len(names):
-            raise ValueError('Found two identical layer names in single map. '\
-                'Specify unique names for layers. This error be due to '\
-                'automatic naming which uses the model name as layer name '\
-                'by default.')
+            raise ValueError(
+                'Found two identical layer names in single map. '
+                'Specify unique names for layers. This error be due to '
+                'automatic naming which uses the model name as layer name '
+                'by default.'
+            )
 
         # Register layers
         for layer in layers:
@@ -93,7 +95,9 @@ class WmsMap(object):
             self.map_object.insertLayer(dispatched_layer)
 
     def register_symbolset(self):
-        """Registers a symbol set in the current map"""
+        """
+        Registers a symbol set in the current map.
+        """
 
         symbolset = self.symbolset_class()
 

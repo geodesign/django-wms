@@ -10,7 +10,9 @@ from wms.maps import WmsMap
 
 
 class WmsView(View):
-    """WMS view class for setting up WMS endpoints"""
+    """
+    WMS view class for setting up WMS endpoints.
+    """
 
     map_class = None
 
@@ -20,9 +22,10 @@ class WmsView(View):
 
         # Verify that map class has been specified correctly
         if not self.map_class or not issubclass(self.map_class, WmsMap):
-            raise TypeError('map_class attribute is not a subclass of WmsMap. '\
-                'Specify map in map_class attribute.')
-
+            raise TypeError(
+                'The map_class attribute is not a subclass of WmsMap. '
+                'Specify a map in map_class attribute.'
+            )
 
         # Setup wms view allowing only GET requests
         super(WmsView, self).__init__(http_method_names=['get'], **kwargs)
@@ -76,8 +79,8 @@ class WmsView(View):
                     'SRS': 'EPSG:3857',
                     'FORMAT': format,
                     'LAYERS': layers,
-                    'BBOX': tilebounds
-                   }
+                    'BBOX': tilebounds,
+                }
 
                 request.GET = dict(request.GET.items() + request_data.items())
 
@@ -121,16 +124,17 @@ class WmsView(View):
 
         # Calculate bounds
         minx = x * scale - shift
-        maxx = (x+1) * scale - shift
-        miny = shift - (y+1) * scale
+        maxx = (x + 1) * scale - shift
+        miny = shift - (y + 1) * scale
         maxy = shift - y * scale
 
         # Convert bounds to query string
         return ','.join([repr(coord) for coord in [minx, miny, maxx, maxy]])
 
     def tilemode(self):
-        """Returns true if the request is for XYZ tiles"""
-
+        """
+        Returns true if the request is for XYZ tiles.
+        """
         # Try to get tile indices from url
         x = self.kwargs.get('x', '')
         y = self.kwargs.get('y', '')
@@ -142,9 +146,12 @@ class WmsView(View):
             return int(x), int(y), int(z)
 
     def tile_exists(self, x, y, z):
-        """Returns true if the requested XYZ tile exists"""
+        """
+        Returns true if the requested XYZ tile exists.
+        """
         return RasterTile.objects.filter(
-                tilex=x,
-                tiley=y,
-                tilez=z,
-                filename=self.kwargs.get('layers', '')).exists()
+            tilex=x,
+            tiley=y,
+            tilez=z,
+            filename=self.kwargs.get('layers', '')
+        ).exists()
